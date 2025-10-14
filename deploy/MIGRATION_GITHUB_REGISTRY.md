@@ -33,7 +33,7 @@ Supprimez ces secrets (plus nécessaires) :
 ### **2. Mettre à jour le docker-compose.prod.yml**
 Remplacez `your-username/your-repo` par votre repository GitHub :
 ```yaml
-image: ghcr.io/votre-username/votre-repo/portfolio-saas:latest
+image: ghcr.io/ismail-mouyahada/master-portfolio-saas-app-main/portfolio-saas:latest
 ```
 
 ### **3. Vérifier les permissions**
@@ -44,8 +44,8 @@ Assurez-vous que votre repository a les permissions pour :
 ## 🎯 **URLs des Images**
 
 Vos images seront disponibles à :
-- `ghcr.io/votre-username/votre-repo/portfolio-saas:latest`
-- `ghcr.io/votre-username/votre-repo/portfolio-saas:sha-abc123`
+- `ghcr.io/ismail-mouyahada/master-portfolio-saas-app-main/portfolio-saas:latest`
+- `ghcr.io/ismail-mouyahada/master-portfolio-saas-app-main/portfolio-saas:sha-abc123`
 
 ## 🔍 **Vérification**
 

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   app:
     container_name: portfolio-saas-app
-    image: ${DOCKER_IMAGE:-ghcr.io/your-username/your-repo/portfolio-saas:latest}
+    image: ${DOCKER_IMAGE:-ghcr.io/ismail-mouyahada/master-portfolio-saas-app-main/portfolio-saas:latest}
     restart: unless-stopped
     ports:
       - "3000:3000"
