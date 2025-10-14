@@ -66,6 +66,35 @@ To run the project locally, follow these steps:
 
 The application will be accessible at `http://localhost:3000`.
 
+## 🚀 Déploiement Rapide
+
+### Option 1: Déploiement Vercel (Recommandé)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Ismail-Mouyahada/Master-Portfolio-Saas-App-main)
+
+1. Cliquez sur le bouton "Deploy with Vercel" ci-dessus
+2. Connectez votre compte GitHub
+3. Configurez les variables d'environnement Supabase
+4. Déployez en un clic !
+
+### Option 2: Déploiement Local
+
+```bash
+# Installation des dépendances
+npm install
+
+# Configuration des variables d'environnement
+cp env.vercel.example .env.local
+# Éditez .env.local avec vos clés Supabase
+
+# Démarrage du serveur de développement
+npm run dev
+```
+
+### Option 3: Déploiement Serveur Dédié
+
+Consultez le guide complet dans `deploy/README.md` pour le déploiement sur serveur dédié avec Docker.
+
 ## Configuration
 
 - **Environment Variables**: Set up any necessary environment variables (e.g., API keys for external services) in the `.env` file.

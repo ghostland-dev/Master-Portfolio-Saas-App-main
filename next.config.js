@@ -2,8 +2,11 @@
 const nextConfig = {
   // Configuration TypeScript
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // Vercel peut gérer les erreurs TypeScript
   },
+  
+  // Configuration pour Vercel
+  output: 'standalone',
   
   // Configuration ESLint (déplacée dans experimental)
   experimental: {

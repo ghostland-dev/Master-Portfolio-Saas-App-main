@@ -1,7 +1,10 @@
 {
-  "name": "my-v0-project",
-  "version": "0.1.0",
+  "name": "portfolio-saas-app",
+  "version": "1.0.0",
   "private": true,
+  "description": "Portfolio SaaS Application - Plateforme de gestion de projets et portfolios",
+  "keywords": ["portfolio", "saas", "nextjs", "supabase", "typescript"],
+  "author": "Ismail MOUYAHADA",
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect' next dev",
     "build": "next build",
