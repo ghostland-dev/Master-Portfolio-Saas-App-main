@@ -1,0 +1,23 @@
+# Configuration Cron pour Portfolio SaaS
+# Copier ce fichier dans le crontab avec: crontab crontab.example
+
+# Vérification de santé toutes les 5 minutes
+*/5 * * * * cd /path/to/portfolio && ./maintenance.sh health >> /var/log/portfolio/health.log 2>&1
+
+# Sauvegarde quotidienne à 2h du matin
+0 2 * * * cd /path/to/portfolio && ./maintenance.sh backup >> /var/log/portfolio/backup.log 2>&1
+
+# Nettoyage hebdomadaire le dimanche à 3h du matin
+0 3 * * 0 cd /path/to/portfolio && ./maintenance.sh cleanup >> /var/log/portfolio/cleanup.log 2>&1
+
+# Rapport de maintenance mensuel le 1er de chaque mois à 4h
+0 4 1 * * cd /path/to/portfolio && ./maintenance.sh report >> /var/log/portfolio/report.log 2>&1
+
+# Test de charge quotidien à 6h du matin
+0 6 * * * cd /path/to/portfolio && ./test-all.sh integration >> /var/log/portfolio/test.log 2>&1
+
+# Redémarrage préventif hebdomadaire le samedi à 5h du matin
+0 5 * * 6 cd /path/to/portfolio && ./maintenance.sh restart >> /var/log/portfolio/restart.log 2>&1
+
+# Surveillance des logs en continu (optionnel)
+# * * * * * cd /path/to/portfolio && ./maintenance.sh logs >> /var/log/portfolio/monitor.log 2>&1

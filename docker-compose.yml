@@ -1,0 +1,359 @@
+ 
+services:
+  # Application Next.js
+  app:
+    container_name: portfolio-app
+    build: .
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SUPABASE_URL=http://kong:8000
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
+    depends_on:
+      - kong
+    networks:
+      - default
+
+  # MailHog for email testing
+  mailhog:
+    container_name: supabase-mailhog
+    image: mailhog/mailhog:v1.0.1
+    restart: unless-stopped
+    ports:
+      - 1025:1025  # SMTP port
+      - 8025:8025  # Web UI port
+
+  # Supabase Studio
+  studio:
+    container_name: supabase-studio
+    image: supabase/studio:latest
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/profile', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    ports:
+      - 3001:3000
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEFAULT_ORGANIZATION_NAME: ${STUDIO_DEFAULT_ORGANIZATION_NAME}
+      DEFAULT_PROJECT_NAME: ${STUDIO_DEFAULT_PROJECT_NAME}
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    depends_on:
+      meta:
+        condition: service_started
+      kong:
+        condition: service_started
+
+  # Kong API Gateway
+  kong:
+    container_name: supabase-kong
+    image: kong:2.8.1
+    restart: unless-stopped
+    entrypoint: /docker-entrypoint.sh kong docker-start
+    ports:
+      - 8001:8000/tcp
+      - 8443:8443/tcp
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
+    volumes:
+      - ./supabase/kong-complete.yml:/home/kong/kong.yml:ro
+    depends_on:
+      - auth
+      - rest
+      - realtime
+      - storage
+      - analytics
+
+  # Auth service
+  auth:
+    container_name: supabase-auth
+    image: supabase/gotrue:v2.158.1
+    depends_on:
+      db:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9999/health"]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    restart: unless-stopped
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL}
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: ${ADDITIONAL_REDIRECT_URLS}
+      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP}
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_EXP: ${JWT_EXPIRY}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP}
+      GOTRUE_MAILER_AUTOCONFIRM: ${ENABLE_EMAIL_AUTOCONFIRM}
+      GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL}
+      GOTRUE_SMTP_HOST: ${SMTP_HOST}
+      GOTRUE_SMTP_PORT: ${SMTP_PORT}
+      GOTRUE_SMTP_USER: ${SMTP_USER}
+      GOTRUE_SMTP_PASS: ${SMTP_PASS}
+      GOTRUE_SMTP_SENDER_NAME: ${SMTP_SENDER_NAME}
+      GOTRUE_MAILER_URLPATHS_INVITE: ${MAILER_URLPATHS_INVITE}
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${MAILER_URLPATHS_CONFIRMATION}
+      GOTRUE_MAILER_URLPATHS_RECOVERY: ${MAILER_URLPATHS_RECOVERY}
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${MAILER_URLPATHS_EMAIL_CHANGE}
+      GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
+      GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
+    command: gotrue
+
+  # REST API
+  rest:
+    container_name: supabase-rest
+    image: postgrest/postgrest:v12.2.0
+    depends_on:
+      db:
+        condition: service_started
+    # healthcheck:
+    #   test: ["CMD-SHELL", "ps aux | grep postgrest | grep -v grep || exit 1"]
+    #   timeout: 5s
+    #   interval: 5s
+    #   retries: 3
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS}
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET}
+      PGRST_APP_SETTINGS_JWT_SECRET_ISSUER: supabase
+      PGRST_APP_SETTINGS_JWT_SECRET_AUD: authenticated
+      PGRST_APP_SETTINGS_DEFAULT_ROLE: anon
+    command: postgrest
+
+  # Realtime service
+  realtime:
+    container_name: supabase-realtime
+    image: supabase/realtime:v2.30.15
+    depends_on:
+      db:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "bash", "-c", "printf \\0 > /dev/tcp/localhost/4000"]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      DB_HOST: ${POSTGRES_HOST}
+      DB_PORT: ${POSTGRES_PORT}
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
+      DB_ENC_KEY: supabaserealtime
+      API_JWT_SECRET: ${JWT_SECRET}
+      FLY_ALLOC_ID: fly123
+      FLY_APP_NAME: realtime
+      SECRET_KEY_BASE: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
+      ERL_AFLAGS: -proto_dist inet_tcp
+      ENABLE_TAILSCALE: "false"
+      DNS_NODES: "''"
+    command: >
+      sh -c "export RLIMIT_NOFILE=65536 && ulimit -n 65536 && /app/bin/migrate && /app/bin/realtime eval 'Realtime.Release.seeds(Realtime.Repo)' && /app/bin/realtime start"
+
+  # Storage service
+  storage:
+    container_name: supabase-storage
+    image: supabase/storage-api:v1.11.3
+    depends_on:
+      db:
+        condition: service_started
+      rest:
+        condition: service_started
+      imgproxy:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/status"]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    restart: unless-stopped
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: "true"
+      IMGPROXY_URL: http://imgproxy:5001
+    volumes:
+      - supabase_storage_data:/var/lib/storage
+    command: >
+      sh -c "supabase-storage-api --port 5000"
+
+  # Image proxy
+  imgproxy:
+    container_name: supabase-imgproxy
+    image: darthsim/imgproxy:v3.8.0
+    healthcheck:
+      test: ["CMD", "imgproxy", "health"]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    restart: unless-stopped
+    environment:
+      IMGPROXY_BIND: ":5001"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /var/lib/storage
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_ENABLE_WEBP_DETECTION: ${IMGPROXY_ENABLE_WEBP_DETECTION}
+      IMGPROXY_SIGNATURE_SIZE: 32
+      IMGPROXY_SALT: "73757061626173652d73746f726167652d73616c74"
+      IMGPROXY_KEY: "73757061626173652d73746f726167652d6b6579"
+    volumes:
+      - supabase_storage_data:/var/lib/storage
+
+  # Database
+  db:
+    container_name: supabase-db
+    image: supabase/postgres:15.1.1.78
+    healthcheck:
+      test: pg_isready -U postgres -h localhost
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    ports:
+      - 54322:5432
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      PGPORT: 5432
+      POSTGRES_PORT: 5432
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      POSTGRES_DB: ${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRY: ${JWT_EXPIRY}
+    volumes:
+      - ./supabase/init-simple.sql:/docker-entrypoint-initdb.d/init-simple.sql:Z
+      - ./supabase/seed.sql:/docker-entrypoint-initdb.d/seed.sql:Z
+      - db-data:/var/lib/postgresql/data:Z
+
+  # Database initialization
+  db-init:
+    container_name: supabase-db-init
+    image: supabase/postgres:15.1.1.78
+    depends_on:
+      db:
+        condition: service_started
+    restart: "no"
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      PGHOST: ${POSTGRES_HOST}
+      PGPORT: ${POSTGRES_PORT}
+      PGUSER: postgres
+    volumes:
+      - ./supabase/init.sql:/init.sql:Z
+    command: >
+      sh -c "
+        echo \"Initializing Supabase schema...\"
+        psql -h $${PGHOST} -p $${PGPORT} -U $${PGUSER} -d $${PGDATABASE} -f /init.sql
+      "
+
+  # Database migrations
+  db-migrations:
+    container_name: supabase-db-migrations
+    image: supabase/postgres:15.1.1.78
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    restart: "no"
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      PGHOST: ${POSTGRES_HOST}
+      PGPORT: ${POSTGRES_PORT}
+      PGUSER: postgres
+    volumes:
+      - ./supabase/migrations:/migrations:Z
+    command: >
+      sh -c "
+        for file in /migrations/*.sql; do
+          echo \"Running migration: $$file\"
+          psql -h $${PGHOST} -p $${PGPORT} -U $${PGUSER} -d $${PGDATABASE} -f \"$$file\"
+        done
+      "
+
+  # Analytics
+  analytics:
+    container_name: supabase-analytics
+    image: supabase/logflare:1.4.0
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:4000/health"]
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+    environment:
+      LOGFLARE_NODE_HOST: 127.0.0.1
+      DB_USERNAME: supabase_admin
+      DB_DATABASE: ${POSTGRES_DB}
+      DB_HOSTNAME: ${POSTGRES_HOST}
+      DB_PORT: ${POSTGRES_PORT}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_SCHEMA: _analytics
+      LOGFLARE_API_KEY: ${LOGFLARE_API_KEY}
+      LOGFLARE_SINGLE_TENANT: true
+      LOGFLARE_SUPABASE_MODE: true
+      LOGFLARE_MIN_CLUSTER_SIZE: 1
+      RELEASE_COOKIE: cookie
+    depends_on:
+      db:
+        condition: service_started
+
+  # Meta service
+  meta:
+    container_name: supabase-meta
+    image: supabase/postgres-meta:v0.80.0
+    depends_on:
+      db:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:8080/health"]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    restart: unless-stopped
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: ${POSTGRES_HOST}
+      PG_META_DB_PORT: ${POSTGRES_PORT}
+      PG_META_DB_NAME: ${POSTGRES_DB}
+      PG_META_DB_USER: supabase_admin
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      NODE_OPTIONS: "--no-warnings"
+
+volumes:
+  db-data:
+  supabase_storage_data:
