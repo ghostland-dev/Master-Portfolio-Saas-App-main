@@ -54,7 +54,9 @@ describe('Navbar', () => {
 
   it('displays logo and brand name', () => {
     render(<Navbar />)
-    expect(screen.getByText('Ismail MOUYAHADA')).toBeInTheDocument()
+    // Le nom est divisé en deux éléments : "Ismail" et "MOUYAHADA"
+    expect(screen.getByText('Ismail')).toBeInTheDocument()
+    expect(screen.getByText('MOUYAHADA')).toBeInTheDocument()
   })
 
   it('renders navigation links', () => {
@@ -67,7 +69,9 @@ describe('Navbar', () => {
 
   it('renders theme toggle button', () => {
     render(<Navbar />)
-    expect(screen.getByRole('button', { name: /thème/i })).toBeInTheDocument()
+    // Il y a deux boutons de thème (mobile et desktop), utilisons getAllByRole
+    const themeButtons = screen.getAllByRole('button', { name: /thème/i })
+    expect(themeButtons.length).toBeGreaterThan(0)
   })
 
   it('renders mobile menu button', () => {
