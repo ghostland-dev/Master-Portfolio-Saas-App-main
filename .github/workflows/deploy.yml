@@ -1,0 +1,422 @@
+name: Deploy to Production Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: portfolio-saas
+  DOCKER_TAG: latest
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        port: 22
+        script: |
+          # Variables
+          APP_NAME="portfolio-saas"
+          DOCKER_IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }}"
+          DOMAIN="${{ secrets.DOMAIN }}"
+          
+          # Create app directory
+          mkdir -p ~/Apps/$APP_NAME
+          cd ~/Apps/$APP_NAME
+          
+          # Create docker-compose.prod.yml
+          cat > docker-compose.prod.yml << 'EOF'
+          version: '3.8'
+          
+          services:
+            app:
+              container_name: ${APP_NAME}-app
+              image: ${DOCKER_IMAGE}
+              restart: unless-stopped
+              ports:
+                - "3000:3000"
+              environment:
+                - NODE_ENV=production
+                - NEXT_PUBLIC_SUPABASE_URL=https://${DOMAIN}/api
+                - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
+              networks:
+                - app-network
+              
+            # Supabase services
+            db:
+              container_name: ${APP_NAME}-db
+              image: supabase/postgres:15.1.1.78
+              restart: unless-stopped
+              environment:
+                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                - POSTGRES_DB=${POSTGRES_DB}
+                - JWT_SECRET=${JWT_SECRET}
+                - JWT_EXPIRY=${JWT_EXPIRY}
+              volumes:
+                - db-data:/var/lib/postgresql/data
+              networks:
+                - app-network
+              
+            auth:
+              container_name: ${APP_NAME}-auth
+              image: supabase/gotrue:v2.158.1
+              depends_on:
+                - db
+              restart: unless-stopped
+              environment:
+                - GOTRUE_API_HOST=0.0.0.0
+                - GOTRUE_API_PORT=9999
+                - API_EXTERNAL_URL=https://${DOMAIN}/api
+                - GOTRUE_DB_DRIVER=postgres
+                - GOTRUE_DB_DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+                - GOTRUE_SITE_URL=https://${DOMAIN}
+                - GOTRUE_JWT_AUD=authenticated
+                - GOTRUE_JWT_EXP=${JWT_EXPIRY}
+                - GOTRUE_JWT_SECRET=${JWT_SECRET}
+                - GOTRUE_EXTERNAL_EMAIL_ENABLED=true
+                - GOTRUE_MAILER_AUTOCONFIRM=true
+                - GOTRUE_SMTP_HOST=${SMTP_HOST}
+                - GOTRUE_SMTP_PORT=${SMTP_PORT}
+                - GOTRUE_SMTP_USER=${SMTP_USER}
+                - GOTRUE_SMTP_PASS=${SMTP_PASS}
+                - GOTRUE_SMTP_SENDER_NAME=${SMTP_SENDER_NAME}
+              networks:
+                - app-network
+              
+            rest:
+              container_name: ${APP_NAME}-rest
+              image: postgrest/postgrest:v12.2.0
+              depends_on:
+                - db
+              restart: unless-stopped
+              environment:
+                - PGRST_DB_URI=postgres://authenticator:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+                - PGRST_DB_SCHEMAS=${PGRST_DB_SCHEMAS}
+                - PGRST_DB_ANON_ROLE=anon
+                - PGRST_JWT_SECRET=${JWT_SECRET}
+                - PGRST_APP_SETTINGS_JWT_SECRET=${JWT_SECRET}
+                - PGRST_APP_SETTINGS_JWT_SECRET_ISSUER=supabase
+                - PGRST_APP_SETTINGS_JWT_SECRET_AUD=authenticated
+                - PGRST_APP_SETTINGS_DEFAULT_ROLE=anon
+              networks:
+                - app-network
+              
+            realtime:
+              container_name: ${APP_NAME}-realtime
+              image: supabase/realtime:v2.30.15
+              depends_on:
+                - db
+              restart: unless-stopped
+              environment:
+                - PORT=4000
+                - DB_HOST=db
+                - DB_PORT=5432
+                - DB_USER=supabase_admin
+                - DB_PASSWORD=${POSTGRES_PASSWORD}
+                - DB_NAME=${POSTGRES_DB}
+                - DB_AFTER_CONNECT_QUERY=SET search_path TO _realtime
+                - DB_ENC_KEY=supabaserealtime
+                - API_JWT_SECRET=${JWT_SECRET}
+                - SECRET_KEY_BASE=UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
+              networks:
+                - app-network
+              
+            storage:
+              container_name: ${APP_NAME}-storage
+              image: supabase/storage-api:v1.11.3
+              depends_on:
+                - db
+                - rest
+              restart: unless-stopped
+              environment:
+                - ANON_KEY=${ANON_KEY}
+                - SERVICE_KEY=${SERVICE_ROLE_KEY}
+                - POSTGREST_URL=http://rest:3000
+                - PGRST_JWT_SECRET=${JWT_SECRET}
+                - DATABASE_URL=postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+                - FILE_SIZE_LIMIT=52428800
+                - STORAGE_BACKEND=file
+                - FILE_STORAGE_BACKEND_PATH=/var/lib/storage
+                - TENANT_ID=stub
+                - REGION=stub
+                - GLOBAL_S3_BUCKET=stub
+                - ENABLE_IMAGE_TRANSFORMATION=true
+              volumes:
+                - storage-data:/var/lib/storage
+              networks:
+                - app-network
+              
+            kong:
+              container_name: ${APP_NAME}-kong
+              image: kong:2.8.1
+              restart: unless-stopped
+              environment:
+                - KONG_DATABASE=off
+                - KONG_DECLARATIVE_CONFIG=/home/kong/kong.yml
+                - KONG_DNS_ORDER=LAST,A,CNAME
+                - KONG_PLUGINS=request-transformer,cors,key-auth,acl,basic-auth
+                - KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=160k
+                - KONG_NGINX_PROXY_PROXY_BUFFERS=64 160k
+              volumes:
+                - ./kong.yml:/home/kong/kong.yml:ro
+              depends_on:
+                - auth
+                - rest
+                - realtime
+                - storage
+              networks:
+                - app-network
+              
+            studio:
+              container_name: ${APP_NAME}-studio
+              image: supabase/studio:latest
+              restart: unless-stopped
+              environment:
+                - STUDIO_PG_META_URL=http://meta:8080
+                - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+                - DEFAULT_ORGANIZATION_NAME=${STUDIO_DEFAULT_ORGANIZATION_NAME}
+                - DEFAULT_PROJECT_NAME=${STUDIO_DEFAULT_PROJECT_NAME}
+                - SUPABASE_URL=http://kong:8000
+                - SUPABASE_PUBLIC_URL=https://${DOMAIN}/api
+                - SUPABASE_ANON_KEY=${ANON_KEY}
+                - SUPABASE_SERVICE_KEY=${SERVICE_ROLE_KEY}
+              depends_on:
+                - meta
+                - kong
+              networks:
+                - app-network
+              
+            meta:
+              container_name: ${APP_NAME}-meta
+              image: supabase/postgres-meta:v0.80.0
+              depends_on:
+                - db
+              restart: unless-stopped
+              environment:
+                - PG_META_PORT=8080
+                - PG_META_DB_HOST=db
+                - PG_META_DB_PORT=5432
+                - PG_META_DB_NAME=${POSTGRES_DB}
+                - PG_META_DB_USER=supabase_admin
+                - PG_META_DB_PASSWORD=${POSTGRES_PASSWORD}
+                - NODE_OPTIONS=--no-warnings
+              networks:
+                - app-network
+          
+          volumes:
+            db-data:
+            storage-data:
+          
+          networks:
+            app-network:
+              driver: bridge
+          EOF
+          
+          # Create environment file
+          cat > .env << 'EOF'
+          # Database
+          POSTGRES_PASSWORD=your_secure_password_here
+          POSTGRES_DB=postgres
+          JWT_SECRET=your_jwt_secret_here
+          JWT_EXPIRY=3600
+          
+          # Supabase
+          ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+          SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+          
+          # PGRST
+          PGRST_DB_SCHEMAS=public,storage,graphql_public
+          
+          # Studio
+          STUDIO_DEFAULT_ORGANIZATION_NAME=Default Organization
+          STUDIO_DEFAULT_PROJECT_NAME=Default Project
+          
+          # SMTP (optional)
+          SMTP_HOST=smtp.gmail.com
+          SMTP_PORT=587
+          SMTP_USER=your_email@gmail.com
+          SMTP_PASS=your_app_password
+          SMTP_SENDER_NAME=Portfolio SaaS
+          EOF
+          
+          # Create Kong configuration
+          cat > kong.yml << 'EOF'
+          _format_version: "1.1"
+          
+          services:
+            - name: auth-v1-open
+              url: http://auth:9999/verify
+              routes:
+                - name: auth-v1-open
+                  strip_path: true
+                  paths:
+                    - /auth/v1/verify
+          
+            - name: auth-v1-open-callback
+              url: http://auth:9999/callback
+              routes:
+                - name: auth-v1-open-callback
+                  strip_path: true
+                  paths:
+                    - /auth/v1/callback
+          
+            - name: auth-v1-open-authorize
+              url: http://auth:9999/authorize
+              routes:
+                - name: auth-v1-open-authorize
+                  strip_path: true
+                  paths:
+                    - /auth/v1/authorize
+          
+            - name: auth-v1
+              _comment: "GoTrue: /auth/v1/* -> http://auth:9999/*"
+              url: http://auth:9999/
+              routes:
+                - name: auth-v1-all
+                  strip_path: true
+                  paths:
+                    - /auth/v1/
+          
+            - name: rest-v1
+              _comment: "PostgREST: /rest/v1/* -> http://rest:3000/*"
+              url: http://rest:3000/
+              routes:
+                - name: rest-v1-all
+                  strip_path: true
+                  paths:
+                    - /rest/v1/
+          
+            - name: realtime-v1
+              _comment: "Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*"
+              url: http://realtime:4000/socket/
+              routes:
+                - name: realtime-v1-all
+                  strip_path: true
+                  paths:
+                    - /realtime/v1/
+          
+            - name: storage-v1
+              _comment: "Storage: /storage/v1/* -> http://storage:5000/*"
+              url: http://storage:5000/
+              routes:
+                - name: storage-v1-all
+                  strip_path: true
+                  paths:
+                    - /storage/v1/
+          
+            - name: studio
+              _comment: "Studio: /studio/* -> http://studio:3000/*"
+              url: http://studio:3000/
+              routes:
+                - name: studio-all
+                  strip_path: true
+                  paths:
+                    - /studio/
+          
+            - name: app
+              _comment: "App: /* -> http://app:3000/*"
+              url: http://app:3000/
+              routes:
+                - name: app-all
+                  strip_path: false
+                  paths:
+                    - /
+          EOF
+          
+          # Create Caddyfile
+          cat > Caddyfile << 'EOF'
+          ${DOMAIN} {
+              reverse_proxy /* {
+                  to localhost:3000
+                  header_up Host {host}
+                  header_up X-Real-IP {remote}
+                  header_up X-Forwarded-For {remote}
+                  header_up X-Forwarded-Proto {scheme}
+              }
+              
+              # API routes
+              handle /api/* {
+                  reverse_proxy localhost:8001
+              }
+              
+              # Studio
+              handle /studio/* {
+                  reverse_proxy localhost:8001
+              }
+              
+              # Health check
+              handle /health {
+                  respond "OK" 200
+              }
+              
+              # Security headers
+              header {
+                  X-Content-Type-Options nosniff
+                  X-Frame-Options DENY
+                  X-XSS-Protection "1; mode=block"
+                  Referrer-Policy strict-origin-when-cross-origin
+                  Permissions-Policy "geolocation=(), microphone=(), camera=()"
+              }
+              
+              # Compression
+              encode gzip
+              
+              # Logging
+              log {
+                  output file /var/log/caddy/portfolio.log
+                  format json
+              }
+          }
+          EOF
+          
+          # Pull latest image
+          docker pull $DOCKER_IMAGE
+          
+          # Stop existing containers
+          docker-compose -f docker-compose.prod.yml down || true
+          
+          # Start new containers
+          docker-compose -f docker-compose.prod.yml up -d
+          
+          # Wait for services to be ready
+          sleep 30
+          
+          # Health check
+          curl -f http://localhost:3000/health || exit 1
+          
+          # Reload Caddy
+          sudo caddy reload --config Caddyfile || true
+          
+          echo "Deployment completed successfully!"
+          echo "App is running at: https://$DOMAIN"
+          echo "Studio is available at: https://$DOMAIN/studio"
