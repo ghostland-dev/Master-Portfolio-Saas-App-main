@@ -16,9 +16,8 @@ Pour activer le déploiement automatique, vous devez configurer les secrets suiv
 - **`JWT_SECRET`** : Secret JWT pour l'authentification
 - **`POSTGRES_PASSWORD`** : Mot de passe de la base de données
 
-### 3. Docker Hub (Optionnel)
-- **`DOCKERHUB_USERNAME`** : Votre nom d'utilisateur Docker Hub
-- **`DOCKERHUB_TOKEN`** : Token d'accès Docker Hub
+### 3. GitHub Container Registry (Automatique)
+- **`GITHUB_TOKEN`** : Le token GitHub (généré automatiquement, pas besoin de le configurer manuellement)
 
 ## 📋 Comment Configurer les Secrets
 
