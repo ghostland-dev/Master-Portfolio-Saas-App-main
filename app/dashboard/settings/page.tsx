@@ -78,16 +78,11 @@ export default function SettingsPage() {
       // Simuler la sauvegarde
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      toast({
+      toast("success", `Vos paramètres ${section} ont été mis à jour avec succès.`, {
         title: "Paramètres sauvegardés",
-        description: `Vos paramètres ${section} ont été mis à jour avec succès.`,
       })
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la sauvegarde.",
-        variant: "destructive",
-      })
+      toast("error", "Une erreur est survenue lors de la sauvegarde.")
     } finally {
       setSaving(false)
     }
@@ -96,11 +91,7 @@ export default function SettingsPage() {
   // Gérer le changement de mot de passe
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
     if (newPassword !== confirmPassword) {
-      toast({
-        title: "Erreur",
-        description: "Les mots de passe ne correspondent pas.",
-        variant: "destructive",
-      })
+      toast("error", "Les mots de passe ne correspondent pas.")
       return
     }
 
@@ -109,16 +100,11 @@ export default function SettingsPage() {
       // Simuler le changement de mot de passe
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      toast({
+      toast("success", "Votre mot de passe a été mis à jour avec succès.", {
         title: "Mot de passe modifié",
-        description: "Votre mot de passe a été mis à jour avec succès.",
       })
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors du changement de mot de passe.",
-        variant: "destructive",
-      })
+      toast("error", "Une erreur est survenue lors du changement de mot de passe.")
     } finally {
       setSaving(false)
     }

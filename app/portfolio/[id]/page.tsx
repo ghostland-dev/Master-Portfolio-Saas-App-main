@@ -91,7 +91,8 @@ const getProjectData = (id: string) => {
     },
   }
 
-  return projects[id] || null
+  const key = id as keyof typeof projects
+  return key in projects ? projects[key] : null
 }
 
 export default function ProjectPage({ params }: { params: { id: string } }) {

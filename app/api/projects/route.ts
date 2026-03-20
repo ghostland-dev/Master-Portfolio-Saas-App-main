@@ -7,6 +7,6 @@ export async function GET() {
     return Response.json(projects)
   } catch (error) {
     console.error('Erreur API projets:', error)
-    return Response.json({ message: 'Erreur serveur', error: error.message }, { status: 500 })
+    return Response.json({ message: 'Erreur serveur', error: (error as any).message }, { status: 500 })
   }
 }

@@ -41,7 +41,7 @@ export function ContactFormSimple() {
         subject: "",
         message: "",
       })
-    } catch (error) {
+    } catch {
       error("Erreur lors de l'envoi", {
         description: "Une erreur est survenue. Veuillez réessayer.",
         duration: 5000,

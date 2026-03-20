@@ -35,10 +35,11 @@ export default function AnalyticsPage() {
   const { invoices, loading: invoicesLoading } = useInvoices()
   
   const [timeRange, setTimeRange] = useState("6months")
-  const [analyticsData, setAnalyticsData] = useState({
+  const [analyticsData, setAnalyticsData] = useState<any>({
     projects: [],
     messages: [],
     invoices: [],
+    feedbacks: [],
   })
 
   // Charger les données
@@ -47,9 +48,9 @@ export default function AnalyticsPage() {
 
     try {
       // Filtrer les données selon le rôle
-      const projectsData = isAdmin ? projects : projects.filter(p => p.client_id === user.id)
-      const messagesData = isAdmin ? messages : messages.filter(m => m.sender_id === user.id || m.recipient_id === user.id)
-      const invoicesData = isAdmin ? invoices : invoices.filter(i => i.client_id === user.id)
+      const projectsData = isAdmin ? projects : projects.filter((p: any) => p.client_id === user.id)
+      const messagesData = isAdmin ? messages : messages.filter((m: any) => m.sender_id === user.id || m.recipient_id === user.id)
+      const invoicesData = isAdmin ? invoices : invoices.filter((i: any) => i.client_id === user.id)
 
       setAnalyticsData({
         projects: projectsData,
@@ -65,13 +66,13 @@ export default function AnalyticsPage() {
   const calculateMetrics = () => {
     const { projects, messages, invoices } = analyticsData
 
-    const activeProjects = projects.filter((p) => p.status === "active").length
-    const completedProjects = projects.filter((p) => p.status === "completed").length
-    const totalRevenue = invoices.filter((i) => i.status === "paid").reduce((sum, inv) => sum + inv.amount, 0)
+    const activeProjects = projects.filter((p: any) => p.status === "active").length
+    const completedProjects = projects.filter((p: any) => p.status === "completed").length
+    const totalRevenue = invoices.filter((i: any) => i.status === "paid").reduce((sum: number, inv: any) => sum + inv.amount, 0)
     const pendingRevenue = invoices
-      .filter((i) => i.status === "sent" || i.status === "overdue")
-      .reduce((sum, inv) => sum + inv.amount, 0)
-    const unreadMessages = messages.filter((m) => !m.read).length
+      .filter((i: any) => i.status === "sent" || i.status === "overdue")
+      .reduce((sum: number, inv: any) => sum + inv.amount, 0)
+    const unreadMessages = messages.filter((m: any) => !m.read).length
 
     return {
       activeProjects,
@@ -85,7 +86,7 @@ export default function AnalyticsPage() {
   // Données pour les graphiques
   const getProjectStatusData = () => {
     const { projects } = analyticsData
-    const statusCounts = projects.reduce((acc, project) => {
+    const statusCounts = projects.reduce((acc: any, project: any) => {
       acc[project.status] = (acc[project.status] || 0) + 1
       return acc
     }, {})
@@ -102,8 +103,8 @@ export default function AnalyticsPage() {
   const getRevenueData = () => {
     const { invoices } = analyticsData
     const monthlyRevenue = invoices
-      .filter((inv) => inv.status === "paid")
-      .reduce((acc, invoice) => {
+      .filter((inv: any) => inv.status === "paid")
+      .reduce((acc: any, invoice: any) => {
         const month = new Date(invoice.date).toLocaleDateString("fr-FR", { month: "short", year: "numeric" })
         acc[month] = (acc[month] || 0) + invoice.amount
         return acc
@@ -117,7 +118,7 @@ export default function AnalyticsPage() {
 
   const getProjectTypeData = () => {
     const { projects } = analyticsData
-    const typeCounts = projects.reduce((acc, project) => {
+    const typeCounts = projects.reduce((acc: any, project: any) => {
       acc[project.type] = (acc[project.type] || 0) + 1
       return acc
     }, {})
@@ -132,7 +133,7 @@ export default function AnalyticsPage() {
 
   const getClientSatisfactionData = () => {
     const { feedbacks } = analyticsData
-    const ratingCounts = feedbacks.reduce((acc, feedback) => {
+    const ratingCounts = feedbacks.reduce((acc: any, feedback: any) => {
       acc[feedback.rating] = (acc[feedback.rating] || 0) + 1
       return acc
     }, {})
@@ -288,7 +289,7 @@ export default function AnalyticsPage() {
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {projectTypeData.map((entry, index) => (
+                      {projectTypeData.map((entry: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -309,8 +310,8 @@ export default function AnalyticsPage() {
             <CardContent>
               <div className="space-y-4">
                 {analyticsData.projects
-                  .filter((p) => p.status === "active")
-                  .map((project) => (
+                  .filter((p: any) => p.status === "active")
+                  .map((project: any) => (
                     <div key={project.id} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="font-medium">{project.title}</span>
@@ -373,12 +374,12 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {analyticsData.feedbacks.slice(0, 3).map((feedback) => (
+                  {analyticsData.feedbacks.slice(0, 3).map((feedback: any) => (
                     <div key={feedback.id} className="space-y-2">
                       <div className="flex justify-between items-start">
                         <span className="font-medium text-sm">{feedback.projectTitle}</span>
                         <div className="flex">
-                          {[...Array(5)].map((_, i) => (
+                          {[...Array(5)].map((_: any, i: number) => (
                             <Icon
                               key={i}
                               name="Star"

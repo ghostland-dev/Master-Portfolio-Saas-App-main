@@ -37,11 +37,7 @@ export default function NewProjectPage() {
   // Créer le projet
   const handleCreateProject = async () => {
     if (!project.title || !project.description || (!isAdmin && !project.clientId)) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires.",
-        variant: "destructive",
-      })
+      toast("error", "Veuillez remplir tous les champs obligatoires.")
       return
     }
 
@@ -50,9 +46,8 @@ export default function NewProjectPage() {
       // Simuler la création du projet
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      toast({
-        title: "Projet créé",
-        description: "Le projet a été créé avec succès.",
+      toast("success", "Le projet a été créé avec succès.", {
+        title: "Projet créé"
       })
       
       // Réinitialiser le formulaire
@@ -68,11 +63,7 @@ export default function NewProjectPage() {
         status: "proposal",
       })
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la création du projet.",
-        variant: "destructive",
-      })
+      toast("error", "Une erreur est survenue lors de la création du projet.")
     } finally {
       setCreating(false)
     }

@@ -286,11 +286,11 @@ export default function ResourcesPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-2">
                         {resource.icon && (
-                          <Icon name={resource.icon} className="h-5 w-5" />
+                          <Icon name={resource.icon as any} className="h-5 w-5" />
                         )}
                         <CardTitle className="text-lg">{resource.title}</CardTitle>
                       </div>
-                      {resource.stars && (
+                      {"stars" in resource && resource.stars != null && (
                         <Badge variant="outline" className="flex items-center gap-1">
                           <Icon name="Star" className="h-3 w-3" />
                           {resource.stars}
@@ -307,18 +307,18 @@ export default function ResourcesPage() {
                             {resource.category}
                           </Badge>
                         )}
-                        {resource.difficulty && (
+                        {"difficulty" in resource && resource.difficulty && (
                           <Badge className={getDifficultyColor(resource.difficulty)}>
                             {resource.difficulty}
                           </Badge>
                         )}
-                        {resource.duration && (
+                        {"duration" in resource && resource.duration && (
                           <Badge variant="outline">
                             <Icon name="Clock" className="h-3 w-3 mr-1" />
                             {resource.duration}
                           </Badge>
                         )}
-                        {resource.type && (
+                        {"type" in resource && resource.type && (
                           <Badge variant="outline">
                             {resource.type}
                           </Badge>

@@ -95,7 +95,7 @@ export const login = (email: string, password: string): User | null => {
     }
   }
 
-  return user
+  return user ?? null
 }
 
 // Fonction pour vérifier si l'utilisateur est connecté

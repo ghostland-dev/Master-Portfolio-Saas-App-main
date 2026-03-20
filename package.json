@@ -3,11 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "description": "Portfolio SaaS Application - Plateforme de gestion de projets et portfolios",
-  "keywords": ["portfolio", "saas", "nextjs", "supabase", "typescript"],
+  "keywords": [
+    "portfolio",
+    "saas",
+    "nextjs",
+    "supabase",
+    "typescript"
+  ],
   "author": "Ismail MOUYAHADA",
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect' next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint",
     "start:full": "./scripts/start-app.sh",
@@ -91,6 +97,7 @@
     "recharts": "2.15.0",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.5.5",
+    "vaul": "^1.1.2",
     "yup": "^1.7.1",
     "zod": "^3.25.76"
   },
@@ -105,6 +112,7 @@
     "@types/react-dom": "^18.3.6",
     "@types/yup": "^0.32.0",
     "autoprefixer": "^10.4.21",
+    "critters": "^0.0.23",
     "css-loader": "^7.1.2",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",

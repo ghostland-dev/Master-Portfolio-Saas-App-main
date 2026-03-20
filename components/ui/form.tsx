@@ -1,21 +1,22 @@
 "use client"
 
 import * as React from "react"
-import { Formik, FormikProps, FormikConfig } from "formik"
+import { Formik, FormikProps, FormikConfig, FormikValues } from "formik"
 import { cn } from "@/lib/utils"
 
-interface FormProps<Values> extends Omit<FormikConfig<Values>, "children"> {
+interface FormProps<Values extends FormikValues>
+  extends Omit<FormikConfig<Values>, "children"> {
   children: (props: FormikProps<Values>) => React.ReactNode
   className?: string
 }
 
-export function Form<Values>({ 
-  children, 
-  className, 
-  ...formikProps 
+export function Form<Values extends FormikValues>({
+  children,
+  className,
+  ...formikProps
 }: FormProps<Values>) {
   return (
-    <Formik {...formikProps}>
+    <Formik<Values> {...formikProps}>
       {(formikProps) => (
         <form 
           onSubmit={formikProps.handleSubmit}

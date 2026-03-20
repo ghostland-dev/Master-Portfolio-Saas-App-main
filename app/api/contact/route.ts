@@ -1,7 +1,7 @@
 // API pour les messages de contact
 import db from '../../../lib/database'
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
     const { name, email, subject, message } = await request.json()
 
@@ -14,6 +14,6 @@ export async function POST(request) {
     return Response.json({ message: 'Message envoyé avec succès', data: contactMessage }, { status: 201 })
   } catch (error) {
     console.error('Erreur API contact:', error)
-    return Response.json({ message: 'Erreur serveur', error: error.message }, { status: 500 })
+    return Response.json({ message: 'Erreur serveur', error: (error as any).message }, { status: 500 })
   }
 }

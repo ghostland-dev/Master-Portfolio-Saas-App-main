@@ -1,4 +1,4 @@
-import type React from "react"
+import * as React from "react"
 import { cn } from "@/lib/utils"
 import * as LucideIcons from "lucide-react"
 
@@ -39,7 +39,7 @@ export function Icon({
   "aria-label": ariaLabel,
   ...props
 }: IconProps) {
-  const LucideIcon = LucideIcons[name]
+  const LucideIcon = LucideIcons[name] as React.ElementType | undefined
 
   // Vérifier si l'icône existe
   if (!LucideIcon) {
@@ -76,6 +76,7 @@ export interface IconTextProps {
   iconClassName?: string
   textClassName?: string
   className?: string
+  onClick?: React.MouseEventHandler<HTMLDivElement>
 }
 
 export function IconText({
@@ -86,9 +87,15 @@ export function IconText({
   iconClassName,
   textClassName,
   className,
+  onClick,
 }: IconTextProps) {
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div
+      className={cn("flex items-center gap-2", className)}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       <Icon name={name} size={size} variant={variant} className={iconClassName} aria-hidden={true} />
       <span className={cn("text-sm", textClassName)}>{text}</span>
     </div>

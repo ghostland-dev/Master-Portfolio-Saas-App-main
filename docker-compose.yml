@@ -9,8 +9,9 @@ services:
       - 3000:3000
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_SUPABASE_URL=http://kong:8000
+      - NEXT_PUBLIC_SUPABASE_URL=http://localhost:8001
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
+      - SUPABASE_SERVER_URL=http://kong:8000
     depends_on:
       - kong
     networks:
@@ -255,55 +256,9 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRY: ${JWT_EXPIRY}
     volumes:
-      - ./supabase/init-simple.sql:/docker-entrypoint-initdb.d/init-simple.sql:Z
-      - ./supabase/seed.sql:/docker-entrypoint-initdb.d/seed.sql:Z
+      - ./supabase/000-roles.sql:/docker-entrypoint-initdb.d/000-roles.sql:Z
+      - ./supabase/002-seed.sql:/docker-entrypoint-initdb.d/002-seed.sql:Z
       - db-data:/var/lib/postgresql/data:Z
-
-  # Database initialization
-  db-init:
-    container_name: supabase-db-init
-    image: supabase/postgres:15.1.1.78
-    depends_on:
-      db:
-        condition: service_started
-    restart: "no"
-    environment:
-      PGPASSWORD: ${POSTGRES_PASSWORD}
-      PGDATABASE: ${POSTGRES_DB}
-      PGHOST: ${POSTGRES_HOST}
-      PGPORT: ${POSTGRES_PORT}
-      PGUSER: postgres
-    volumes:
-      - ./supabase/init.sql:/init.sql:Z
-    command: >
-      sh -c "
-        echo \"Initializing Supabase schema...\"
-        psql -h $${PGHOST} -p $${PGPORT} -U $${PGUSER} -d $${PGDATABASE} -f /init.sql
-      "
-
-  # Database migrations
-  db-migrations:
-    container_name: supabase-db-migrations
-    image: supabase/postgres:15.1.1.78
-    depends_on:
-      db-init:
-        condition: service_completed_successfully
-    restart: "no"
-    environment:
-      PGPASSWORD: ${POSTGRES_PASSWORD}
-      PGDATABASE: ${POSTGRES_DB}
-      PGHOST: ${POSTGRES_HOST}
-      PGPORT: ${POSTGRES_PORT}
-      PGUSER: postgres
-    volumes:
-      - ./supabase/migrations:/migrations:Z
-    command: >
-      sh -c "
-        for file in /migrations/*.sql; do
-          echo \"Running migration: $$file\"
-          psql -h $${PGHOST} -p $${PGPORT} -U $${PGUSER} -d $${PGDATABASE} -f \"$$file\"
-        done
-      "
 
   # Analytics
   analytics:

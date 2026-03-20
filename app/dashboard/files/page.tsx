@@ -115,10 +115,10 @@ export default function FilesPage() {
 
     try {
       // Filtrer les projets selon le rôle
-      const projectsData = isAdmin ? projects : projects.filter(p => p.client_id === user.id)
+      const projectsData = isAdmin ? projects : projects.filter((p: any) => p.client_id === user.id)
       // Filtrer les fichiers selon les projets accessibles
-      const accessibleProjectIds = projectsData.map(p => p.id)
-      const filteredFiles = mockFiles.filter(f => accessibleProjectIds.includes(f.projectId))
+      const accessibleProjectIds = projectsData.map((p: any) => p.id)
+      const filteredFiles = mockFiles.filter((f: any) => accessibleProjectIds.includes(f.projectId))
       setFiles(filteredFiles)
     } catch (error) {
       console.error("Erreur lors du chargement des fichiers:", error)
@@ -126,7 +126,7 @@ export default function FilesPage() {
   }, [user, isAdmin, authLoading, projects])
 
   // Filtrer les fichiers
-  const filteredFiles = files.filter(file => {
+  const filteredFiles = files.filter((file: any) => {
     const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          file.description?.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesProject = selectedProject === "all" || file.projectId === selectedProject
@@ -137,7 +137,7 @@ export default function FilesPage() {
   // Obtenir les projets accessibles
   const getAccessibleProjects = () => {
     if (isAdmin) return projects
-    return getClientProjects(user?.id || "")
+    return projects.filter((p: any) => p.client_id === user?.id)
   }
 
   // Formater la taille des fichiers
@@ -189,13 +189,13 @@ export default function FilesPage() {
       size: newFile.file.size,
       uploadDate: new Date().toISOString(),
       projectId: newFile.projectId,
-      projectTitle: getAccessibleProjects().find(p => p.id === newFile.projectId)?.title || "",
-      uploadedBy: user?.name || "Utilisateur",
+      projectTitle: getAccessibleProjects().find((p: any) => p.id === newFile.projectId)?.title || "",
+      uploadedBy: user?.user_metadata?.full_name || user?.user_metadata?.name || "Utilisateur",
       description: newFile.description,
       version: "1.0",
     }
 
-    setFiles(prev => [newFileItem, ...prev])
+    setFiles((prev: any) => [newFileItem, ...prev])
     setNewFile({ name: "", description: "", projectId: "", file: null })
     setIsUploadDialogOpen(false)
     setUploading(false)
@@ -237,13 +237,13 @@ export default function FilesPage() {
                 <Input
                   id="fileName"
                   value={newFile.name}
-                  onChange={(e) => setNewFile(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e: any) => setNewFile((prev: any) => ({ ...prev, name: e.target.value }))}
                   placeholder="Nom du fichier"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fileProject">Projet</Label>
-                <Select value={newFile.projectId} onValueChange={(value) => setNewFile(prev => ({ ...prev, projectId: value }))}>
+                <Select value={newFile.projectId} onValueChange={(value: any) => setNewFile((prev: any) => ({ ...prev, projectId: value }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un projet" />
                   </SelectTrigger>
@@ -261,7 +261,7 @@ export default function FilesPage() {
                 <Textarea
                   id="fileDescription"
                   value={newFile.description}
-                  onChange={(e) => setNewFile(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e: any) => setNewFile((prev: any) => ({ ...prev, description: e.target.value }))}
                   placeholder="Description du fichier"
                 />
               </div>
@@ -270,7 +270,7 @@ export default function FilesPage() {
                 <Input
                   id="fileUpload"
                   type="file"
-                  onChange={(e) => setNewFile(prev => ({ ...prev, file: e.target.files?.[0] || null }))}
+                  onChange={(e: any) => setNewFile((prev: any) => ({ ...prev, file: e.target.files?.[0] || null }))}
                 />
               </div>
               <Button onClick={handleFileUpload} disabled={uploading || !newFile.file || !newFile.name || !newFile.projectId} className="w-full">
@@ -297,7 +297,7 @@ export default function FilesPage() {
           <Input
             placeholder="Rechercher un fichier..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: any) => setSearchQuery(e.target.value)}
             className="max-w-sm"
           />
         </div>
@@ -349,7 +349,7 @@ export default function FilesPage() {
               <div>
                 <p className="text-sm font-medium">Espace Utilisé</p>
                 <p className="text-2xl font-bold">
-                  {formatFileSize(files.reduce((sum, file) => sum + file.size, 0))}
+                  {formatFileSize(files.reduce((sum: number, file: any) => sum + file.size, 0))}
                 </p>
               </div>
             </div>
@@ -361,7 +361,7 @@ export default function FilesPage() {
               <Icon name="Image" className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">Images</p>
-                <p className="text-2xl font-bold">{files.filter(f => f.type === "image").length}</p>
+                <p className="text-2xl font-bold">{files.filter((f: any) => f.type === "image").length}</p>
               </div>
             </div>
           </CardContent>
@@ -372,7 +372,7 @@ export default function FilesPage() {
               <Icon name="FileText" className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">Documents</p>
-                <p className="text-2xl font-bold">{files.filter(f => f.type === "document").length}</p>
+                <p className="text-2xl font-bold">{files.filter((f: any) => f.type === "document").length}</p>
               </div>
             </div>
           </CardContent>

@@ -42,10 +42,8 @@ export default function ComposeMessagePage() {
   // Envoyer le message
   const handleSendMessage = async () => {
     if (!message.recipient || !message.subject || !message.content) {
-      toast({
+      toast("error", "Veuillez remplir tous les champs obligatoires.", {
         title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires.",
-        variant: "destructive",
       })
       return
     }
@@ -55,9 +53,8 @@ export default function ComposeMessagePage() {
       // Simuler l'envoi du message
       await new Promise(resolve => setTimeout(resolve, 2000))
       
-      toast({
+      toast("success", "Votre message a été envoyé avec succès.", {
         title: "Message envoyé",
-        description: "Votre message a été envoyé avec succès.",
       })
       
       // Réinitialiser le formulaire
@@ -69,10 +66,8 @@ export default function ComposeMessagePage() {
         projectId: "",
       })
     } catch (error) {
-      toast({
+      toast("error", "Une erreur est survenue lors de l'envoi du message.", {
         title: "Erreur",
-        description: "Une erreur est survenue lors de l'envoi du message.",
-        variant: "destructive",
       })
     } finally {
       setSending(false)
@@ -112,13 +107,13 @@ export default function ComposeMessagePage() {
               <Label htmlFor="recipient">Destinataire *</Label>
               <Select
                 value={message.recipient}
-                onValueChange={(value) => setMessage(prev => ({ ...prev, recipient: value }))}
+                onValueChange={(value: string) => setMessage((prev: any) => ({ ...prev, recipient: value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un destinataire" />
                 </SelectTrigger>
                 <SelectContent>
-                  {getRecipients().map((recipient) => (
+                  {getRecipients().map((recipient: any) => (
                     <SelectItem key={recipient.id} value={recipient.id}>
                       <div className="flex items-center space-x-2">
                         <span>{recipient.name}</span>
@@ -137,14 +132,14 @@ export default function ComposeMessagePage() {
                 <Label htmlFor="project">Projet (optionnel)</Label>
                 <Select
                   value={message.projectId}
-                  onValueChange={(value) => setMessage(prev => ({ ...prev, projectId: value }))}
+                  onValueChange={(value: string) => setMessage((prev: any) => ({ ...prev, projectId: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un projet" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Aucun projet spécifique</SelectItem>
-                    {getAccessibleProjects().map((project) => (
+                    {getAccessibleProjects().map((project: any) => (
                       <SelectItem key={project.id} value={project.id}>
                         {project.title}
                       </SelectItem>
@@ -160,7 +155,7 @@ export default function ComposeMessagePage() {
                 <Input
                   id="subject"
                   value={message.subject}
-                  onChange={(e) => setMessage(prev => ({ ...prev, subject: e.target.value }))}
+                  onChange={(e: any) => setMessage((prev: any) => ({ ...prev, subject: e.target.value }))}
                   placeholder="Sujet du message"
                 />
               </div>
@@ -168,7 +163,7 @@ export default function ComposeMessagePage() {
                 <Label htmlFor="priority">Priorité</Label>
                 <Select
                   value={message.priority}
-                  onValueChange={(value: "low" | "medium" | "high") => setMessage(prev => ({ ...prev, priority: value }))}
+                  onValueChange={(value: "low" | "medium" | "high") => setMessage((prev: any) => ({ ...prev, priority: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -202,7 +197,7 @@ export default function ComposeMessagePage() {
               <Textarea
                 id="content"
                 value={message.content}
-                onChange={(e) => setMessage(prev => ({ ...prev, content: e.target.value }))}
+                onChange={(e: any) => setMessage((prev: any) => ({ ...prev, content: e.target.value }))}
                 placeholder="Rédigez votre message..."
                 className="min-h-[200px]"
               />

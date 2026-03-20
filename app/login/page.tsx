@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,7 +14,7 @@ import { SignupForm } from "@/components/auth/signup-form"
 import { useSupabase } from "@/components/supabase-provider"
 import Link from "next/link"
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectPath = searchParams?.get("redirect") || "/dashboard"
@@ -57,7 +57,7 @@ export default function LoginPage() {
     try {
       const { error } = await signIn(email, password)
       if (error) {
-        console.error("Erreur de connexion:", error.message)
+        console.error("Erreur de connexion:", (error as any).message)
         setError("Email ou mot de passe incorrect")
       } else {
         console.log("Connexion réussie")
@@ -84,8 +84,8 @@ export default function LoginPage() {
         role: 'client'
       })
       if (error) {
-        console.error("Erreur d'inscription:", error.message)
-        setError("Erreur lors de l'inscription: " + error.message)
+        console.error("Erreur d'inscription:", (error as any).message)
+        setError("Erreur lors de l'inscription: " + (error as any).message)
       } else {
         console.log("Inscription réussie")
         setError("")
@@ -231,3 +231,16 @@ export default function LoginPage() {
   )
 }
 
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container flex min-h-[50vh] items-center justify-center">
+          <p className="text-muted-foreground">Chargement…</p>
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
+  )
+}

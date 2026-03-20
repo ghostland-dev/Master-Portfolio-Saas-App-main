@@ -100,10 +100,7 @@ export const generatePDF = async (
     if (watermark) {
       pdf.setTextColor(200, 200, 200)
       pdf.setFontSize(30)
-      pdf.save()
-      pdf.rotate(45, imgWidth / 2, imgHeight / 2)
-      pdf.text(watermark, imgWidth / 2 - 40, imgHeight / 2)
-      pdf.restore()
+      pdf.text(watermark, imgWidth / 2 - 40, imgHeight / 2, { angle: 45 })
       pdf.setTextColor(0, 0, 0)
     }
 
@@ -190,9 +187,7 @@ export const generateStructuredPDF = (
     if (watermark) {
       pdf.setTextColor(200, 200, 200)
       pdf.setFontSize(60)
-      pdf.textWithRotation(watermark, pageWidth / 2 - 100, pdf.internal.pageSize.getHeight() / 2, { angle: 45 })
-      pdf.text(watermark, pageWidth / 2 - 100, pdf.internal.pageSize.getHeight() / 2)
-      pdf.restore()
+      pdf.text(watermark, pageWidth / 2 - 100, pdf.internal.pageSize.getHeight() / 2, { angle: 45 })
       pdf.setTextColor(0, 0, 0)
     }
 

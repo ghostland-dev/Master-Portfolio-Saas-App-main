@@ -44,7 +44,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./supabase/init-simple.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./supabase/000-roles.sql:/docker-entrypoint-initdb.d/000-roles.sql:ro
+      - ./supabase/001-plain-postgres-auth-stubs.sql:/docker-entrypoint-initdb.d/001-plain-postgres-auth-stubs.sql:ro
+      - ./supabase/002-seed.sql:/docker-entrypoint-initdb.d/002-seed.sql:ro
     networks:
       - portfolio-network
     logging:

@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # Script de maintenance pour Portfolio SaaS
-# Usage: ./maintenance.sh [option]
+# Usage: ./scripts/ops/maintenance.sh [option]
 # Options: backup, cleanup, update, health, logs, restart
 
 set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$REPO_ROOT"
 
 # Couleurs pour l'affichage
 RED='\033[0;31m'
@@ -60,7 +63,7 @@ backup_data() {
         docker-compose.prod.yml \
         .env \
         .env.local \
-        next.config.js \
+        next.config.mjs \
         tailwind.config.js \
         package.json
     

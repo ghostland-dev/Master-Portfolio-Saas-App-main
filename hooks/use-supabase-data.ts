@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { supabaseClient } from '@/lib/supabase'
 import { useSupabase } from '@/components/supabase-provider'
+
+const supabaseData = supabaseClient as SupabaseClient<any>
 
 // Hook pour récupérer les projets
 export function useProjects() {
@@ -19,7 +22,7 @@ export function useProjects() {
     const fetchProjects = async () => {
       try {
         setLoading(true)
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabaseData
           .from('projects')
           .select(`
             *,
@@ -41,7 +44,7 @@ export function useProjects() {
 
   const createProject = async (projectData: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('projects')
         .insert([projectData])
         .select()
@@ -55,7 +58,7 @@ export function useProjects() {
 
   const updateProject = async (id: string, updates: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('projects')
         .update(updates)
         .eq('id', id)
@@ -70,7 +73,7 @@ export function useProjects() {
 
   const deleteProject = async (id: string) => {
     try {
-      const { error } = await supabaseClient
+      const { error } = await supabaseData
         .from('projects')
         .delete()
         .eq('id', id)
@@ -109,7 +112,7 @@ export function useMessages() {
     const fetchMessages = async () => {
       try {
         setLoading(true)
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabaseData
           .from('messages')
           .select(`
             *,
@@ -133,7 +136,7 @@ export function useMessages() {
 
   const sendMessage = async (messageData: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('messages')
         .insert([messageData])
         .select()
@@ -147,7 +150,7 @@ export function useMessages() {
 
   const markAsRead = async (messageId: string) => {
     try {
-      const { error } = await supabaseClient
+      const { error } = await supabaseData
         .from('messages')
         .update({ read: true })
         .eq('id', messageId)
@@ -185,7 +188,7 @@ export function useInvoices() {
     const fetchInvoices = async () => {
       try {
         setLoading(true)
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabaseData
           .from('invoices')
           .select(`
             *,
@@ -208,7 +211,7 @@ export function useInvoices() {
 
   const createInvoice = async (invoiceData: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('invoices')
         .insert([invoiceData])
         .select()
@@ -222,7 +225,7 @@ export function useInvoices() {
 
   const updateInvoice = async (id: string, updates: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('invoices')
         .update(updates)
         .eq('id', id)
@@ -261,7 +264,7 @@ export function useTasks(projectId?: string) {
     const fetchTasks = async () => {
       try {
         setLoading(true)
-        let query = supabaseClient
+        let query = supabaseData
           .from('tasks')
           .select(`
             *,
@@ -289,7 +292,7 @@ export function useTasks(projectId?: string) {
 
   const createTask = async (taskData: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('tasks')
         .insert([taskData])
         .select()
@@ -303,7 +306,7 @@ export function useTasks(projectId?: string) {
 
   const updateTask = async (id: string, updates: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('tasks')
         .update(updates)
         .eq('id', id)
@@ -318,7 +321,7 @@ export function useTasks(projectId?: string) {
 
   const deleteTask = async (id: string) => {
     try {
-      const { error } = await supabaseClient
+      const { error } = await supabaseData
         .from('tasks')
         .delete()
         .eq('id', id)
@@ -357,7 +360,7 @@ export function useProjectPhases(projectId: string) {
     const fetchPhases = async () => {
       try {
         setLoading(true)
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabaseData
           .from('project_phases')
           .select(`
             *,
@@ -380,7 +383,7 @@ export function useProjectPhases(projectId: string) {
 
   const createPhase = async (phaseData: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('project_phases')
         .insert([phaseData])
         .select()
@@ -394,7 +397,7 @@ export function useProjectPhases(projectId: string) {
 
   const updatePhase = async (id: string, updates: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('project_phases')
         .update(updates)
         .eq('id', id)
@@ -409,7 +412,7 @@ export function useProjectPhases(projectId: string) {
 
   const deletePhase = async (id: string) => {
     try {
-      const { error } = await supabaseClient
+      const { error } = await supabaseData
         .from('project_phases')
         .delete()
         .eq('id', id)
@@ -448,7 +451,7 @@ export function useAppointments() {
     const fetchAppointments = async () => {
       try {
         setLoading(true)
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabaseData
           .from('appointments')
           .select(`
             *,
@@ -470,7 +473,7 @@ export function useAppointments() {
 
   const createAppointment = async (appointmentData: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('appointments')
         .insert([appointmentData])
         .select()
@@ -484,7 +487,7 @@ export function useAppointments() {
 
   const updateAppointment = async (id: string, updates: any) => {
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabaseData
         .from('appointments')
         .update(updates)
         .eq('id', id)
@@ -499,7 +502,7 @@ export function useAppointments() {
 
   const deleteAppointment = async (id: string) => {
     try {
-      const { error } = await supabaseClient
+      const { error } = await supabaseData
         .from('appointments')
         .delete()
         .eq('id', id)
@@ -518,5 +521,49 @@ export function useAppointments() {
     createAppointment,
     updateAppointment,
     deleteAppointment,
+  }
+}
+
+// Hook pour récupérer les retours clients
+export function useFeedbacks() {
+  const { user } = useSupabase()
+  const [feedbacks, setFeedbacks] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!user) {
+      setFeedbacks([])
+      setLoading(false)
+      return
+    }
+
+    const fetchFeedbacks = async () => {
+      try {
+        setLoading(true)
+        const { data, error } = await supabaseData
+          .from('feedbacks')
+          .select(`
+            *,
+            client:users!feedbacks_client_id_fkey(*)
+          `)
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+        setFeedbacks(data || [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFeedbacks()
+  }, [user])
+
+  return {
+    feedbacks,
+    loading,
+    error,
   }
 }

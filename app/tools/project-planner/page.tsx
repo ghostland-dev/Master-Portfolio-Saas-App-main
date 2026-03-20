@@ -642,8 +642,6 @@ export default function ProjectPlannerPage() {
   const handleDeleteTask = (id: string) => {
     setProject((prev) => ({
       ...prev,
-      tasks: prev.tasks.filter((task) => task.id !== id),
-      // Also remove this task from dependencies
       tasks: prev.tasks
         .filter((task) => task.id !== id)
         .map((task) => ({
@@ -706,11 +704,13 @@ export default function ProjectPlannerPage() {
 
   // Update project dates when date range changes
   useEffect(() => {
-    if (dateRange.from && dateRange.to) {
+    const from = dateRange?.from
+    const to = dateRange?.to
+    if (from && to) {
       setProject((prev) => ({
         ...prev,
-        startDate: dateRange.from,
-        endDate: dateRange.to,
+        startDate: from,
+        endDate: to,
       }))
     }
   }, [dateRange])

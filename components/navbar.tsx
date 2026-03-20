@@ -35,6 +35,13 @@ export default function Navbar() {
   const pathname = usePathname()
   const { user, signOut } = useSupabase()
   const isLoggedIn = !!user
+  const displayName =
+    user?.user_metadata?.full_name ??
+    user?.user_metadata?.name ??
+    user?.email?.split("@")[0] ??
+    ""
+  const avatarUrl =
+    typeof user?.user_metadata?.avatar === "string" ? user.user_metadata.avatar : undefined
 
   // Handle scroll effect
   useEffect(() => {
@@ -140,10 +147,10 @@ export default function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="flex items-center gap-2 hover:bg-muted/50 transition-colors">
                   <Avatar className="h-6 w-6">
-                    <AvatarImage src={user?.avatar} alt={user?.name || ""} />
-                    <AvatarFallback>{user?.name?.charAt(0) || "U"}</AvatarFallback>
+                    <AvatarImage src={avatarUrl} alt={displayName} />
+                    <AvatarFallback>{displayName.charAt(0) || "U"}</AvatarFallback>
                   </Avatar>
-                  <span className="max-w-[100px] truncate">{user?.name}</span>
+                  <span className="max-w-[100px] truncate">{displayName}</span>
                   <Icon name="ChevronDown" size="sm" aria-hidden={true} />
                 </Button>
               </DropdownMenuTrigger>

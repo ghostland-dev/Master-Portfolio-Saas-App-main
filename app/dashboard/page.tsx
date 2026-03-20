@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { useDebounce } from "@/hooks/use-debounce"
 import { useSupabase } from "@/components/supabase-provider"
-import { useProjects, useMessages, useInvoices } from "@/hooks/use-supabase-data"
+import { useProjects, useMessages, useInvoices, useFeedbacks } from "@/hooks/use-supabase-data"
+import { users } from "@/lib/auth-utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -21,12 +22,14 @@ export default function DashboardPage() {
   const { projects, loading: projectsLoading } = useProjects()
   const { messages, loading: messagesLoading } = useMessages()
   const { invoices, loading: invoicesLoading } = useInvoices()
+  const { feedbacks, loading: feedbacksLoading } = useFeedbacks()
   
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [filteredProjects, setFilteredProjects] = useState<any[]>([])
   const [filteredMessages, setFilteredMessages] = useState<any[]>([])
   const [filteredInvoices, setFilteredInvoices] = useState<any[]>([])
+  const [filteredFeedbacks, setFilteredFeedbacks] = useState<any[]>([])
   const [stats, setStats] = useState({
     activeProjects: 0,
     completedProjects: 0,
@@ -40,11 +43,11 @@ export default function DashboardPage() {
   useEffect(() => {
     if (authLoading || !user) return
 
-    console.log("Chargement des données pour l'utilisateur:", user.user_metadata?.name)
+    console.log("Chargement des données pour l'utilisateur:", user.user_metadata?.full_name || user.user_metadata?.name || user.email)
 
     try {
       // Filtrer les données en fonction du rôle de l'utilisateur et de la recherche
-      const projectsData = projects.filter((project) => {
+      const projectsData = projects.filter((project: any) => {
         const matchesSearch = !debouncedSearchQuery || 
           project.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           project.client?.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
@@ -53,7 +56,7 @@ export default function DashboardPage() {
         return isAdmin ? matchesSearch : (project.client_id === user.id && matchesSearch)
       })
 
-      const messagesData = messages.filter((message) => {
+      const messagesData = messages.filter((message: any) => {
         const matchesSearch = !debouncedSearchQuery ||
           message.subject.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           message.sender?.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
@@ -63,7 +66,7 @@ export default function DashboardPage() {
           (message.sender_id === user.id || message.recipient_id === user.id) && matchesSearch
       })
 
-      const invoicesData = invoices.filter((invoice) => {
+      const invoicesData = invoices.filter((invoice: any) => {
         const matchesSearch = !debouncedSearchQuery ||
           invoice.invoice_number.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           invoice.client?.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
@@ -71,22 +74,31 @@ export default function DashboardPage() {
         return isAdmin ? matchesSearch : (invoice.client_id === user.id && matchesSearch)
       })
 
+      const feedbacksData = feedbacks.filter((feedback: any) => {
+        const matchesSearch = !debouncedSearchQuery ||
+          feedback.comment.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+          feedback.projectTitle.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+        
+        return isAdmin ? matchesSearch : (feedback.client_id === user.id && matchesSearch)
+      })
+
       // Calculer les statistiques
       const statsData = {
-        activeProjects: projectsData.filter((p) => p.status === "active").length,
-        completedProjects: projectsData.filter((p) => p.status === "completed").length,
-        totalClients: isAdmin ? new Set(projects.map(p => p.client_id)).size : 1,
-        unreadMessages: messagesData.filter((m) => !m.read).length,
-        totalRevenue: invoicesData.filter((i) => i.status === "paid").reduce((sum, inv) => sum + inv.amount, 0),
+        activeProjects: projectsData.filter((p: any) => p.status === "active").length,
+        completedProjects: projectsData.filter((p: any) => p.status === "completed").length,
+        totalClients: isAdmin ? new Set(projects.map((p: any) => p.client_id)).size : 1,
+        unreadMessages: messagesData.filter((m: any) => !m.read).length,
+        totalRevenue: invoicesData.filter((i: any) => i.status === "paid").reduce((sum: number, inv: any) => sum + inv.amount, 0),
         pendingRevenue: invoicesData
-          .filter((i) => i.status === "sent" || i.status === "overdue")
-          .reduce((sum, inv) => sum + inv.amount, 0),
+          .filter((i: any) => i.status === "sent" || i.status === "overdue")
+          .reduce((sum: number, inv: any) => sum + inv.amount, 0),
       }
 
       // Mettre à jour l'état avec les données filtrées
       setFilteredProjects(projectsData)
       setFilteredMessages(messagesData)
       setFilteredInvoices(invoicesData)
+      setFilteredFeedbacks(feedbacksData)
       setStats(statsData)
 
       console.log("Données chargées avec succès:", {
@@ -97,10 +109,10 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Erreur lors du chargement des données:", error)
     }
-  }, [user, isAdmin, authLoading, projects, messages, invoices, debouncedSearchQuery])
+  }, [user, isAdmin, authLoading, projects, messages, invoices, feedbacks, debouncedSearchQuery])
 
   // Si les données sont en cours de chargement, afficher un indicateur
-  if (authLoading || projectsLoading || messagesLoading || invoicesLoading) {
+  if (authLoading || projectsLoading || messagesLoading || invoicesLoading || feedbacksLoading) {
     return (
       <div className="container mx-auto px-4 py-12 flex flex-col items-center justify-center min-h-[50vh]">
         <Icon name="Loader2" className="h-12 w-12 animate-spin text-primary mb-4" aria-hidden={true} />
@@ -230,20 +242,20 @@ export default function DashboardPage() {
 
   // Obtenir le nom du client à partir de son ID
   const getClientName = (clientId: string) => {
-    const client = users.find((u) => u.id === clientId)
-    return client ? client.name : "Client inconnu"
+    const client = users.find((u: any) => u.id === clientId)
+    return client ? (client as any).name : "Client inconnu"
   }
 
   // Obtenir la société du client à partir de son ID
   const getClientCompany = (clientId: string) => {
-    const client = users.find((u) => u.id === clientId)
-    return client?.company || ""
+    const client = users.find((u: any) => u.id === clientId)
+    return (client as any)?.company || ""
   }
 
   // Obtenir l'avatar du client à partir de son ID
   const getClientAvatar = (clientId: string) => {
-    const client = users.find((u) => u.id === clientId)
-    return client?.avatar
+    const client = users.find((u: any) => u.id === clientId)
+    return (client as any)?.avatar
   }
 
   return (
@@ -254,7 +266,7 @@ export default function DashboardPage() {
           <p className="text-muted-foreground mt-2">
             {isAdmin
               ? "Gérez vos projets, clients et communications en un seul endroit"
-              : `Bienvenue, ${user?.name}. Suivez vos projets et communications`}
+              : `Bienvenue, ${user?.user_metadata?.full_name || user?.user_metadata?.name || 'Utilisateur'}. Suivez vos projets et communications`}
           </p>
         </div>
 
@@ -262,7 +274,7 @@ export default function DashboardPage() {
           <Input
             placeholder="Rechercher projets, clients, messages..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: any) => setSearchQuery(e.target.value)}
             className="w-full md:w-[300px]"
           />
         </div>
@@ -359,8 +371,8 @@ export default function DashboardPage() {
                   <div className="space-y-6">
                     {filteredProjects.length > 0 ? (
                       filteredProjects
-                        .filter((project) => project.status === "active" || project.status === "review")
-                        .map((project) => (
+                        .filter((project: any) => project.status === "active" || project.status === "review")
+                        .map((project: any) => (
                           <div key={project.id} className="border rounded-lg p-4 hover:bg-accent/50 transition-colors">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                               <div>
@@ -440,11 +452,11 @@ export default function DashboardPage() {
                       { status: "review", label: "En révision", icon: "FileSearch" },
                       { status: "completed", label: "Terminé", icon: "CheckCircle" },
                       { status: "on-hold", label: "En pause", icon: "Pause" },
-                    ].map((item) => (
+                    ].map((item: any) => (
                       <div key={item.status} className="flex items-center justify-between">
                         <IconText name={item.icon as any} text={item.label} size="sm" variant="outline" />
                         <Badge variant="outline">
-                          {filteredProjects.filter((p) => p.status === item.status).length}
+                          {filteredProjects.filter((p: any) => p.status === item.status).length}
                         </Badge>
                       </div>
                     ))}
@@ -460,9 +472,9 @@ export default function DashboardPage() {
                   <CardContent>
                     <div className="space-y-4">
                       {users
-                        .filter((u) => u.role === "client")
+                        .filter((u: any) => u.role === "client")
                         .slice(0, 4)
-                        .map((client) => (
+                        .map((client: any) => (
                           <div key={client.id} className="flex items-center gap-3">
                             <Avatar>
                               <AvatarImage src={client.avatar} alt={client.name} />
@@ -501,7 +513,7 @@ export default function DashboardPage() {
             <CardContent>
               <div className="space-y-4">
                 {filteredMessages.length > 0 ? (
-                  filteredMessages.map((message) => (
+                  filteredMessages.map((message: any) => (
                     <div
                       key={message.id}
                       className={`border rounded-lg p-4 hover:bg-accent/50 transition-colors ${
@@ -512,14 +524,14 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-3">
                           <Avatar>
                             <AvatarImage
-                              src={message.fromClient ? getClientAvatar(message.clientId) : user?.avatar}
-                              alt={message.fromClient ? getClientName(message.clientId) : user?.name || ""}
-                            />
-                            <AvatarFallback>
-                              {message.fromClient
-                                ? getClientName(message.clientId).charAt(0)
-                                : user?.name?.charAt(0) || "U"}
-                            </AvatarFallback>
+                                  src={message.fromClient ? getClientAvatar(message.clientId) : user?.user_metadata?.avatar}
+                                alt={message.fromClient ? getClientName(message.clientId) : user?.user_metadata?.full_name || user?.user_metadata?.name || ""}
+                              />
+                              <AvatarFallback>
+                                {message.fromClient
+                                  ? getClientName(message.clientId).charAt(0)
+                                  : (user?.user_metadata?.full_name || user?.user_metadata?.name || "U").charAt(0)}
+                              </AvatarFallback>
                           </Avatar>
                           <div>
                             <p className="font-medium">
@@ -585,7 +597,7 @@ export default function DashboardPage() {
             <CardContent>
               <div className="space-y-6">
                 {filteredFeedbacks.length > 0 ? (
-                  filteredFeedbacks.map((feedback) => (
+                  filteredFeedbacks.map((feedback: any) => (
                     <div key={feedback.id} className="border rounded-lg p-4 hover:bg-accent/50 transition-colors">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div className="flex items-center gap-3">
@@ -603,7 +615,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex">
-                            {Array.from({ length: 5 }).map((_, i) => (
+                            {Array.from({ length: 5 }).map((_: any, i: number) => (
                               <Icon
                                 key={i}
                                 name="Star"
@@ -713,7 +725,7 @@ export default function DashboardPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredInvoices.map((invoice) => (
+                        {filteredInvoices.map((invoice: any) => (
                           <tr key={invoice.id} className="border-b hover:bg-accent/50 transition-colors">
                             <td className="py-3 px-2 font-medium">{invoice.id}</td>
                             {isAdmin && <td className="py-3 px-2">{getClientName(invoice.clientId)}</td>}
@@ -781,11 +793,11 @@ export default function DashboardPage() {
                           { status: "sent", label: "Envoyée" },
                           { status: "paid", label: "Payée" },
                           { status: "overdue", label: "En retard" },
-                        ].map((item) => (
+                        ].map((item: any) => (
                           <div key={item.status} className="flex justify-between items-center">
                             <span className="text-sm">{item.label}</span>
                             <Badge variant="outline">
-                              {filteredInvoices.filter((i) => i.status === item.status).length}
+                              {filteredInvoices.filter((i: any) => i.status === item.status).length}
                             </Badge>
                           </div>
                         ))}

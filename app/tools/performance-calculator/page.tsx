@@ -598,7 +598,7 @@ export default function PerformanceCalculatorPage() {
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
                               <Label className="flex items-center gap-1.5">
-                                <Icon name="Ram" size="sm" aria-hidden={true} /> Mémoire
+                                <Icon name="MemoryStick" size="sm" aria-hidden={true} /> Mémoire
                               </Label>
                               <span className="text-sm font-medium">{estimate.resourceUsage.memory}%</span>
                             </div>

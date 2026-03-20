@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # Script de déploiement automatisé pour Portfolio SaaS
-# Usage: ./deploy.sh [environment]
+# Usage: ./scripts/ops/deploy.sh [environment]
 # Environments: dev, staging, prod
 
 set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$REPO_ROOT"
 
 # Couleurs pour l'affichage
 RED='\033[0;31m'

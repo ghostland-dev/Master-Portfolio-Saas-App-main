@@ -43,11 +43,11 @@ sudo reboot
 git clone <repository-url>
 cd Master-Portfolio-Saas-App-main
 
-# Rendre le script exécutable
-chmod +x start.sh
+# Rendre les scripts opérationnels exécutables
+chmod +x scripts/ops/*.sh
 
 # Démarrer l'application
-./start.sh start
+./scripts/ops/start.sh start
 ```
 
 ### 3. Configuration de Production
@@ -228,7 +228,7 @@ docker-compose logs -f --tail=100
 if ! curl -s http://localhost:3000 > /dev/null; then
     echo "ALERT: Portfolio SaaS is down!" | mail -s "Portfolio Alert" admin@your-domain.com
     # Redémarrage automatique
-    cd /path/to/portfolio && ./start.sh restart
+    cd /path/to/portfolio && ./scripts/ops/start.sh restart
 fi
 ```
 
@@ -238,17 +238,17 @@ fi
 
 ```bash
 # Arrêt des services
-./start.sh stop
+./scripts/ops/start.sh stop
 
 # Sauvegarde
-./start.sh backup
+./scripts/ops/start.sh backup
 
 # Mise à jour du code
 git pull origin main
 
 # Reconstruction et redémarrage
 docker-compose build --no-cache
-./start.sh start
+./scripts/ops/start.sh start
 ```
 
 ### 2. Mise à Jour de la Base de Données
@@ -265,7 +265,7 @@ docker-compose exec db psql -U postgres -d portfolio_prod -f /path/to/migration.
 1. **Application ne démarre pas**
    ```bash
    # Vérifier les logs
-   ./start.sh logs
+   ./scripts/ops/start.sh logs
    
    # Vérifier les ports
    netstat -tulpn | grep :3000
@@ -293,19 +293,19 @@ docker-compose exec db psql -U postgres -d portfolio_prod -f /path/to/migration.
 
 ```bash
 # Statut des services
-./start.sh status
+./scripts/ops/start.sh status
 
 # Logs en temps réel
-./start.sh logs
+./scripts/ops/start.sh logs
 
 # Redémarrage complet
-./start.sh restart
+./scripts/ops/start.sh restart
 
 # Nettoyage complet
-./start.sh clean
+./scripts/ops/start.sh clean
 
 # Tests
-./start.sh test
+./scripts/ops/start.sh test
 ```
 
 ## 📈 Optimisation
@@ -328,8 +328,8 @@ docker-compose exec db psql -U postgres -d portfolio_prod -f /path/to/migration.
 
 En cas de problème :
 
-1. Vérifier les logs : `./start.sh logs`
-2. Vérifier le statut : `./start.sh status`
+1. Vérifier les logs : `./scripts/ops/start.sh logs`
+2. Vérifier le statut : `./scripts/ops/start.sh status`
 3. Consulter la documentation
 4. Créer une issue sur le repository
 

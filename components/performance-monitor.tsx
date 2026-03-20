@@ -54,7 +54,8 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
         }
         
         if (entry.entryType === "first-input") {
-          setMetrics(prev => ({ ...prev, fid: entry.processingStart - entry.startTime }))
+          const fi = entry as PerformanceEventTiming
+          setMetrics((prev) => ({ ...prev, fid: fi.processingStart - fi.startTime }))
         }
         
         if (entry.entryType === "layout-shift" && !(entry as any).hadRecentInput) {
@@ -65,7 +66,11 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
         }
         
         if (entry.entryType === "navigation") {
-          setMetrics(prev => ({ ...prev, ttfb: entry.responseStart - entry.requestStart }))
+          const nav = entry as PerformanceNavigationTiming
+          setMetrics((prev) => ({
+            ...prev,
+            ttfb: nav.responseStart - nav.requestStart,
+          }))
         }
       })
     })

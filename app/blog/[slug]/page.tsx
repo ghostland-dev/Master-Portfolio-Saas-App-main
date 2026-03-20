@@ -258,7 +258,7 @@ const getBlogPost = (slug: string) => {
     },
   }
 
-  return posts[slug] || null
+  return (posts as any)[slug] || null
 }
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
@@ -279,7 +279,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   }
 
   // Get related posts
-  const relatedPosts = post.relatedPosts?.map((slug) => getBlogPost(slug)).filter(Boolean) || []
+  const relatedPosts = post.relatedPosts?.map((slug: string) => getBlogPost(slug)).filter(Boolean) || []
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -295,7 +295,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       <article className="max-w-4xl mx-auto">
         <div className="mb-8">
           <div className="flex flex-wrap gap-2 mb-4">
-            {post.categories.map((category) => (
+            {post.categories.map((category: string) => (
               <Badge key={category} variant="secondary" className="capitalize">
                 {category}
               </Badge>
@@ -342,7 +342,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 
         <div className="flex justify-between items-center mb-12">
           <div className="flex gap-2">
-            {post.tags.map((tag) => (
+            {post.tags.map((tag: string) => (
               <Badge key={tag} variant="outline" className="capitalize">
                 {tag}
               </Badge>
@@ -358,7 +358,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
         <div className="max-w-4xl mx-auto mt-16">
           <h2 className="text-2xl font-bold mb-6">Articles similaires</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {relatedPosts.map((relatedPost) => (
+            {relatedPosts.map((relatedPost: any) => (
               <Card key={relatedPost.id} className="overflow-hidden group">
                 <div className="relative h-48 w-full">
                   <Image
@@ -370,7 +370,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                 </div>
                 <CardContent className="p-6">
                   <div className="flex flex-wrap gap-2 mb-2">
-                    {relatedPost.categories.map((category) => (
+                    {relatedPost.categories.map((category: string) => (
                       <Badge key={category} variant="secondary" className="capitalize">
                         {category}
                       </Badge>

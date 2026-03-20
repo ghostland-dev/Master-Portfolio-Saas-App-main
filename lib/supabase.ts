@@ -1,14 +1,20 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-// Créer une seule instance de Supabase pour éviter les instances multiples
+function getSupabaseUrl(): string {
+  const publicUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!publicUrl) throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
+  if (typeof window !== 'undefined') return publicUrl
+  return process.env.SUPABASE_SERVER_URL || publicUrl
+}
+
+// Une instance par environnement (bundle client vs serveur Node).
 let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null
 
 export const supabase = (() => {
   if (!supabaseInstance) {
-    supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey)
+    supabaseInstance = createClient<Database>(getSupabaseUrl(), supabaseAnonKey)
   }
   return supabaseInstance
 })()

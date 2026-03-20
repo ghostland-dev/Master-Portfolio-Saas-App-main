@@ -32,7 +32,8 @@ services:
       - JWT_EXPIRY=${JWT_EXPIRY}
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ../supabase/000-roles.sql:/docker-entrypoint-initdb.d/000-roles.sql:ro
+      - ../supabase/002-seed.sql:/docker-entrypoint-initdb.d/002-seed.sql:ro
     networks:
       - app-network
     healthcheck:

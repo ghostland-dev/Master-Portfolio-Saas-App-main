@@ -7,6 +7,15 @@ import { Icon } from "@/components/ui/icon"
 import { getCategoryIcon } from "@/lib/icon-utils"
 import Image from "next/image"
 
+type PortfolioProjectCard = {
+  id: number
+  title: string
+  description: string
+  image: string
+  category: string
+  technologies: string[]
+}
+
 export default function PortfolioPage() {
   // Sample projects data
   const projects = [
@@ -129,7 +138,7 @@ export default function PortfolioPage() {
   )
 }
 
-function ProjectCard({ project }) {
+function ProjectCard({ project }: { project: PortfolioProjectCard }) {
   const categoryIcon = getCategoryIcon(project.category)
 
   return (
@@ -137,7 +146,7 @@ function ProjectCard({ project }) {
       <div className="relative h-64 w-full">
         <div className="absolute top-4 right-4 z-10">
           <Badge className="flex items-center gap-1.5 bg-background/80 backdrop-blur-sm">
-            <Icon name={categoryIcon} size="xs" aria-hidden={true} />
+            <Icon name={categoryIcon as any} size="xs" aria-hidden={true} />
             {project.category}
           </Badge>
         </div>
@@ -150,7 +159,7 @@ function ProjectCard({ project }) {
       </div>
       <CardContent className="p-6">
         <div className="flex items-center gap-2 mb-2">
-          <Icon name={categoryIcon} size="sm" variant="solid" aria-hidden={true} />
+          <Icon name={categoryIcon as any} size="sm" variant="solid" aria-hidden={true} />
           <h3 className="text-xl font-semibold">{project.title}</h3>
         </div>
         <p className="text-muted-foreground mb-4">{project.description}</p>

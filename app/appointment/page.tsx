@@ -108,18 +108,18 @@ export default function AppointmentPage() {
   const handleSubmit = () => {
     if (!selectedDate || !selectedTime) {
       toast({
+        variant: "destructive",
         title: "Sélection requise",
         description: "Veuillez sélectionner une date et un créneau horaire.",
-        variant: "destructive"
       })
       return
     }
 
     if (!formData.name || !formData.email) {
       toast({
+        variant: "destructive",
         title: "Informations requises",
         description: "Veuillez remplir au moins votre nom et email.",
-        variant: "destructive"
       })
       return
     }
@@ -218,7 +218,7 @@ export default function AppointmentPage() {
                             <Label htmlFor={type.id} className="cursor-pointer">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center space-x-2">
-                                  <Icon name={type.icon} className="h-5 w-5" />
+                                  <Icon name={type.icon as any} className="h-5 w-5" />
                                   <span className="font-medium">{type.title}</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
@@ -426,7 +426,7 @@ export default function AppointmentPage() {
                   <div>
                     <h4 className="font-medium mb-2">Type de consultation</h4>
                     <div className="flex items-center space-x-2">
-                      <Icon name={appointmentTypes.find(t => t.id === appointmentType)?.icon} className="h-4 w-4" />
+                      <Icon name={appointmentTypes.find(t => t.id === appointmentType)?.icon as any} className="h-4 w-4" />
                       <span className="text-sm">{appointmentTypes.find(t => t.id === appointmentType)?.title}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Icon } from "@/components/ui/icon"
 import { useSupabase } from "@/components/supabase-provider"
-import { useProjects, useMessages, useInvoices } from "@/hooks/use-supabase-data"
+import { useProjects, useMessages, useInvoices, useFeedbacks } from "@/hooks/use-supabase-data"
 
 export default function ReportsPage() {
   const { user, loading: authLoading } = useSupabase()
@@ -19,14 +19,21 @@ export default function ReportsPage() {
   const { projects, loading: projectsLoading } = useProjects()
   const { messages, loading: messagesLoading } = useMessages()
   const { invoices, loading: invoicesLoading } = useInvoices()
+  const { feedbacks, loading: feedbacksLoading } = useFeedbacks()
   const [selectedReport, setSelectedReport] = useState("financial")
   const [dateRange, setDateRange] = useState("6months")
   const [customDateFrom, setCustomDateFrom] = useState("")
   const [customDateTo, setCustomDateTo] = useState("")
-  const [reportData, setReportData] = useState({
+  const [reportData, setReportData] = useState<{
+    projects: any[]
+    messages: any[]
+    invoices: any[]
+    feedbacks: any[]
+  }>({
     projects: [],
     messages: [],
     invoices: [],
+    feedbacks: [],
   })
   const [isGenerating, setIsGenerating] = useState(false)
 
@@ -39,16 +46,20 @@ export default function ReportsPage() {
       const projectsData = isAdmin ? projects : projects.filter(p => p.client_id === user.id)
       const messagesData = isAdmin ? messages : messages.filter(m => m.sender_id === user.id || m.recipient_id === user.id)
       const invoicesData = isAdmin ? invoices : invoices.filter(i => i.client_id === user.id)
+      const feedbacksData = isAdmin
+        ? feedbacks
+        : feedbacks.filter((f: any) => f.client_id === user.id)
 
       setReportData({
         projects: projectsData,
         messages: messagesData,
         invoices: invoicesData,
+        feedbacks: feedbacksData,
       })
     } catch (error) {
       console.error("Erreur lors du chargement des données de rapport:", error)
     }
-  }, [user, isAdmin, authLoading, projects, messages, invoices])
+  }, [user, isAdmin, authLoading, projects, messages, invoices, feedbacks])
 
   // Générer un rapport
   const generateReport = async () => {
@@ -100,9 +111,12 @@ export default function ReportsPage() {
   // Calculer les statistiques de satisfaction
   const getSatisfactionStats = () => {
     const { feedbacks } = reportData
-    const averageRating = feedbacks.length > 0 ? feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length : 0
-    const publicFeedbacks = feedbacks.filter(f => f.public)
-    const ratingDistribution = feedbacks.reduce((acc, f) => {
+    const averageRating =
+      feedbacks.length > 0
+        ? feedbacks.reduce((sum, f: any) => sum + f.rating, 0) / feedbacks.length
+        : 0
+    const publicFeedbacks = feedbacks.filter((f: any) => f.public)
+    const ratingDistribution = feedbacks.reduce((acc: Record<number, number>, f: any) => {
       acc[f.rating] = (acc[f.rating] || 0) + 1
       return acc
     }, {})
@@ -119,7 +133,7 @@ export default function ReportsPage() {
   const projectStats = getProjectStats()
   const satisfactionStats = getSatisfactionStats()
 
-  if (authLoading || projectsLoading || messagesLoading || invoicesLoading) {
+  if (authLoading || projectsLoading || messagesLoading || invoicesLoading || feedbacksLoading) {
     return (
       <div className="container mx-auto px-4 py-12 flex flex-col items-center justify-center min-h-[50vh]">
         <Icon name="Loader2" className="h-12 w-12 animate-spin text-primary mb-4" aria-hidden={true} />

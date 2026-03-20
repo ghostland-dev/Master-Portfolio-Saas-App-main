@@ -2,7 +2,7 @@
 
 # Ismail MOUYAHADA - Solutions Numériques Sur Mesure
 
-![alt text](image.png)
+![Aperçu du portfolio](docs/assets/image.png)
 
 
 Welcome to the personal portfolio website of **Ismail MOUYAHADA**, a professional offering tailor-made digital solutions with expertise in full-stack development and DevOps practices. This website showcases my skills, services, and recent projects, demonstrating my ability to build high-performance applications using the latest technologies.
@@ -84,7 +84,7 @@ The application will be accessible at `http://localhost:3000`.
 npm install
 
 # Configuration des variables d'environnement
-cp env.vercel.example .env.local
+cp config/examples/env.vercel.example .env.local
 # Éditez .env.local avec vos clés Supabase
 
 # Démarrage du serveur de développement
@@ -94,6 +94,30 @@ npm run dev
 ### Option 3: Déploiement Serveur Dédié
 
 Consultez le guide complet dans `deploy/README.md` pour le déploiement sur serveur dédié avec Docker.
+
+## Structure du dépôt
+
+| Dossier / fichier | Rôle |
+|-------------------|------|
+| `app/` | Routes Next.js (App Router), pages et API |
+| `components/` | Composants React réutilisables |
+| `hooks/` | Hooks React |
+| `lib/` | Utilitaires, client Supabase, schémas |
+| `public/` | Assets statiques |
+| `scripts/` | Scripts shell (Docker, déploiement, CI locale) |
+| `scripts/ops/` | Démarrage stack, tests manuels, déploiement, maintenance |
+| `tests/` | Jest (`unit`, `integration`) et Playwright (`e2e`) |
+| `tests/manual/node/` | Anciens scripts Node de test / debug (hors CI) |
+| `docs/` | Documentation (déploiement, guides) |
+| `docs/assets/` | Captures et médias pour la doc |
+| `config/examples/` | Exemples d’environnement, crontab |
+| `supabase/` | Docker, SQL d’init, seeds manuels |
+| `supabase/seed-manual/` | Scripts SQL d’injection de données (hors migrations versionnées) |
+| `deploy/` | Guides et fichiers liés au déploiement serveur |
+| `monitoring/` | Config Prometheus / health checks |
+| `pages/` | `_document` / `_app` (compat build Next.js) |
+
+Index de la documentation : [`docs/README.md`](docs/README.md).
 
 ## Configuration
 

@@ -1,11 +1,12 @@
 "use client"
 
+import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/ui/icon"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
-export default function UnauthorizedPage() {
+function UnauthorizedPageContent() {
   const searchParams = useSearchParams()
   const redirectPath = searchParams?.get("redirect") || "/dashboard"
 
@@ -42,3 +43,16 @@ export default function UnauthorizedPage() {
   )
 }
 
+export default function UnauthorizedPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container flex min-h-[50vh] items-center justify-center">
+          <p className="text-muted-foreground">Chargement…</p>
+        </div>
+      }
+    >
+      <UnauthorizedPageContent />
+    </Suspense>
+  )
+}

@@ -83,34 +83,34 @@ Pour tester l'authentification, créez des comptes via l'interface :
 ### Gestion des Services
 ```bash
 # Démarrer tous les services
-./start.sh start
+./scripts/ops/start.sh start
 
 # Arrêter tous les services
-./start.sh stop
+./scripts/ops/start.sh stop
 
 # Redémarrer les services
-./start.sh restart
+./scripts/ops/start.sh restart
 
 # Vérifier le statut
-./start.sh status
+./scripts/ops/start.sh status
 
 # Voir les logs
-./start.sh logs
+./scripts/ops/start.sh logs
 ```
 
 ### Tests
 ```bash
 # Tests unitaires
-./test-all.sh unit
+./scripts/ops/test-all.sh unit
 
 # Tests d'intégration
-./test-all.sh integration
+./scripts/ops/test-all.sh integration
 
 # Tests end-to-end
-./test-all.sh e2e
+./scripts/ops/test-all.sh e2e
 
 # Tous les tests
-./test-all.sh all
+./scripts/ops/test-all.sh all
 ```
 
 ### Base de Données
@@ -170,7 +170,7 @@ GOTRUE_SMTP_PASS=
    netstat -tulpn | grep :3000
    
    # Arrêter les services
-   ./start.sh stop
+   ./scripts/ops/start.sh stop
    ```
 
 2. **Base de données inaccessible**
@@ -185,7 +185,7 @@ GOTRUE_SMTP_PASS=
 3. **Application ne démarre pas**
    ```bash
    # Vérifier les logs
-   ./start.sh logs
+   ./scripts/ops/start.sh logs
    
    # Rebuild l'image
    docker-compose build --no-cache app
@@ -210,11 +210,11 @@ docker logs supabase-mailhog
 
 En cas de problème :
 
-1. Vérifier les logs : `./start.sh logs`
-2. Vérifier le statut : `./start.sh status`
-3. Exécuter les tests : `./test-all.sh all`
+1. Vérifier les logs : `./scripts/ops/start.sh logs`
+2. Vérifier le statut : `./scripts/ops/start.sh status`
+3. Exécuter les tests : `./scripts/ops/test-all.sh all`
 4. Consulter la documentation : `README-COMPLET.md`
-5. Guide de déploiement : `DEPLOYMENT.md`
+5. Guide de déploiement : `docs/deployment/DEPLOYMENT.md`
 
 ---
 

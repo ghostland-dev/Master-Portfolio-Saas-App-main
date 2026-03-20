@@ -22,9 +22,11 @@ Dockerfile
 .dockerignore
 docker-compose.yml
 
-# Documentation
+# Documentation (non nécessaire dans l’image runtime)
 README.md
-SUPABASE_SETUP.md
+docs/
+tests/manual/
+coverage/
 
 # IDE
 .vscode

@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # Script de démarrage rapide pour Portfolio SaaS
-# Usage: ./start.sh [option]
+# Usage: ./scripts/ops/start.sh [option]  (from repo root)
 # Options: start, stop, restart, status, logs
 
 set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$REPO_ROOT"
 
 # Couleurs pour l'affichage
 RED='\033[0;31m'

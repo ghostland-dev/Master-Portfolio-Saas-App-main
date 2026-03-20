@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # Script de test complet pour Portfolio SaaS
-# Usage: ./test-all.sh [option]
+# Usage: ./scripts/ops/test-all.sh [option]  (from repo root)
 # Options: unit, integration, e2e, all, ci
 
 set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$REPO_ROOT"
 
 # Couleurs pour l'affichage
 RED='\033[0;31m'
@@ -151,7 +154,7 @@ run_config_tests() {
     print_status "Vérification de la configuration..."
     
     # Vérifier les fichiers de configuration
-    local config_files=("package.json" "next.config.js" "tailwind.config.js" "docker-compose.yml")
+    local config_files=("package.json" "next.config.mjs" "tailwind.config.js" "docker-compose.yml")
     for file in "${config_files[@]}"; do
         if [ -f "$file" ]; then
             print_success "Fichier de configuration $file présent"
