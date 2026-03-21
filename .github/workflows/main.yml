@@ -3,8 +3,13 @@ name: Unified CI/CD Pipeline
 on:
   push:
     branches: [ main, staging, dev ]
-  pull_request:
-    branches: [ main, staging, dev ]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - 'infra/**'
+      - 'deploy/**'
+      - 'docker-compose*'
+      - '.github/workflows/main.yml'
   workflow_dispatch:
 
 env:
