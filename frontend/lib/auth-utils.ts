@@ -510,4 +510,3 @@ export const invoices: Invoice[] = [
     status: "overdue",
   },
 ]
-

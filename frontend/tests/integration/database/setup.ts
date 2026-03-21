@@ -63,10 +63,10 @@ export const setupTestData = async () => {
   try {
     // Insérer les utilisateurs de test
     await testSupabase.from('users').insert(testData.users)
-    
+
     // Insérer les projets de test
     await testSupabase.from('projects').insert(testData.projects)
-    
+
     // Insérer les messages de test
     await testSupabase.from('messages').insert(testData.messages)
   } catch (error) {

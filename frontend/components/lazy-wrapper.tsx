@@ -26,11 +26,11 @@ function LoadingSkeleton({ height = "h-64", className = "" }: { height?: string;
 }
 
 // Generic lazy wrapper
-export function LazyWrapper({ 
-  children, 
-  fallback, 
-  height = "h-64", 
-  className = "" 
+export function LazyWrapper({
+  children,
+  fallback,
+  height = "h-64",
+  className = ""
 }: LazyWrapperProps) {
   return (
     <Suspense fallback={fallback || <LoadingSkeleton height={height} className={className} />}>
@@ -89,12 +89,12 @@ interface LazyIntersectionProps extends LazyWrapperProps {
   threshold?: number
 }
 
-export function LazyIntersection({ 
-  children, 
-  fallback, 
-  height = "h-64", 
+export function LazyIntersection({
+  children,
+  fallback,
+  height = "h-64",
   className = "",
-  threshold = 0.1 
+  threshold = 0.1
 }: LazyIntersectionProps) {
   const { ref, isVisible } = useLazyLoading(threshold)
 

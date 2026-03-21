@@ -76,7 +76,7 @@ export default function ReportsPage() {
     const { invoices } = reportData
     const paidInvoices = invoices.filter(inv => inv.status === "paid")
     const pendingInvoices = invoices.filter(inv => inv.status === "sent" || inv.status === "overdue")
-    
+
     const totalRevenue = paidInvoices.reduce((sum, inv) => sum + inv.amount, 0)
     const pendingRevenue = pendingInvoices.reduce((sum, inv) => sum + inv.amount, 0)
     const averageInvoice = paidInvoices.length > 0 ? totalRevenue / paidInvoices.length : 0
@@ -241,7 +241,7 @@ export default function ReportsPage() {
                     <div className="space-y-1">
                       <p className="font-medium">{invoice.projectTitle}</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(invoice.date).toLocaleDateString("fr-FR")} - 
+                        {new Date(invoice.date).toLocaleDateString("fr-FR")} -
                         Échéance: {new Date(invoice.dueDate).toLocaleDateString("fr-FR")}
                       </p>
                     </div>
@@ -332,7 +332,7 @@ export default function ReportsPage() {
                       <p className="font-medium">{project.title}</p>
                       <p className="text-sm text-muted-foreground">{project.description}</p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(project.startDate).toLocaleDateString("fr-FR")} - 
+                        {new Date(project.startDate).toLocaleDateString("fr-FR")} -
                         {new Date(project.endDate).toLocaleDateString("fr-FR")}
                       </p>
                     </div>
@@ -544,4 +544,3 @@ export default function ReportsPage() {
     </div>
   )
 }
-

@@ -45,20 +45,20 @@ function makeTimedRequest(url, timeout = 5000) {
     const req = http.get(url, { timeout }, (res) => {
       const endTime = Date.now();
       const responseTime = endTime - startTime;
-      
+
       resolve({
         status: res.statusCode,
         responseTime,
         healthy: res.statusCode >= 200 && res.statusCode < 400
       });
     });
-    
+
     req.on('error', (err) => {
       const endTime = Date.now();
       const responseTime = endTime - startTime;
       reject({ error: err, responseTime });
     });
-    
+
     req.on('timeout', () => {
       req.destroy();
       reject({ error: new Error('Timeout'), responseTime: timeout });
@@ -72,9 +72,9 @@ async function collectMetrics() {
     { name: 'app', url: config.app.url },
     { name: 'supabase', url: config.supabase.url }
   ];
-  
+
   const results = [];
-  
+
   for (const check of checks) {
     try {
       const result = await makeTimedRequest(check.url, config.app.timeout);
@@ -94,27 +94,27 @@ async function collectMetrics() {
       });
     }
   }
-  
+
   return results;
 }
 
 // Fonction pour mettre à jour les métriques globales
 function updateGlobalMetrics(results) {
   const appResult = results.find(r => r.service === 'app');
-  
+
   if (appResult) {
     metrics.requests++;
     metrics.lastCheck = new Date().toISOString();
-    
+
     if (!appResult.healthy) {
       metrics.errors++;
     }
-    
+
     // Mise à jour des temps de réponse
     const responseTime = appResult.responseTime;
     metrics.maxResponseTime = Math.max(metrics.maxResponseTime, responseTime);
     metrics.minResponseTime = Math.min(metrics.minResponseTime, responseTime);
-    
+
     // Calcul de la moyenne mobile
     metrics.avgResponseTime = (metrics.avgResponseTime * (metrics.requests - 1) + responseTime) / metrics.requests;
   }
@@ -127,12 +127,12 @@ function logMetrics(results) {
     metrics: { ...metrics },
     checks: results
   };
-  
+
   const logLine = JSON.stringify(logEntry) + '\n';
-  
+
   // Écrire dans le fichier de log
   fs.appendFileSync(config.monitoring.logFile, logLine);
-  
+
   // Afficher un résumé
   console.log(`[${new Date().toISOString()}] Requests: ${metrics.requests}, Errors: ${metrics.errors}, Avg Response: ${metrics.avgResponseTime.toFixed(2)}ms`);
 }
@@ -142,7 +142,7 @@ function cleanupLogs() {
   try {
     const stats = fs.statSync(config.monitoring.logFile);
     const fileSize = stats.size;
-    
+
     if (fileSize > config.monitoring.maxLogSize) {
       // Garder seulement les 50% les plus récents
       const content = fs.readFileSync(config.monitoring.logFile, 'utf8');
@@ -161,7 +161,7 @@ function generateReport() {
   const uptime = Date.now() - metrics.uptime;
   const uptimeHours = (uptime / (1000 * 60 * 60)).toFixed(2);
   const errorRate = metrics.requests > 0 ? ((metrics.errors / metrics.requests) * 100).toFixed(2) : 0;
-  
+
   console.log('\n📊 RAPPORT DE PERFORMANCE');
   console.log('========================');
   console.log(`⏱️  Uptime: ${uptimeHours} heures`);
@@ -179,25 +179,25 @@ async function startMonitoring() {
   console.log('🚀 Démarrage du moniteur de performance...');
   console.log(`📊 Intervalle: ${config.monitoring.interval / 1000} secondes`);
   console.log(`📝 Logs: ${config.monitoring.logFile}\n`);
-  
+
   // Créer le dossier de monitoring s'il n'existe pas
   const monitoringDir = path.dirname(config.monitoring.logFile);
   if (!fs.existsSync(monitoringDir)) {
     fs.mkdirSync(monitoringDir, { recursive: true });
   }
-  
+
   // Boucle de monitoring
   const interval = setInterval(async () => {
     try {
       const results = await collectMetrics();
       updateGlobalMetrics(results);
       logMetrics(results);
-      
+
       // Nettoyer les logs toutes les 10 vérifications
       if (metrics.requests % 10 === 0) {
         cleanupLogs();
       }
-      
+
       // Afficher un rapport toutes les 20 vérifications
       if (metrics.requests % 20 === 0) {
         generateReport();
@@ -206,7 +206,7 @@ async function startMonitoring() {
       console.error('Erreur lors de la collecte des métriques:', error);
     }
   }, config.monitoring.interval);
-  
+
   // Gestion de l'arrêt propre
   process.on('SIGINT', () => {
     console.log('\n🛑 Arrêt du moniteur...');
@@ -214,7 +214,7 @@ async function startMonitoring() {
     generateReport();
     process.exit(0);
   });
-  
+
   // Première vérification immédiate
   try {
     const results = await collectMetrics();

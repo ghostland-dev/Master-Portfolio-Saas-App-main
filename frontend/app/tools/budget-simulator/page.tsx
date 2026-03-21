@@ -361,7 +361,7 @@ export default function BudgetSimulatorPage() {
     localStorage.setItem("budgetConfigurations", JSON.stringify(updated))
     setShowSaveDialog(false)
     setConfigurationName("")
-    
+
     toast("success", "Votre configuration a été sauvegardée avec succès.", {
       title: "Configuration sauvegardée",
     })
@@ -385,7 +385,7 @@ export default function BudgetSimulatorPage() {
     setClientEmail(data.clientEmail)
     setCustomFeatures(data.customFeatures)
     setStartDate(data.startDate ? new Date(data.startDate) : undefined)
-    
+
     toast("success", `Configuration "${config.name}" chargée avec succès.`, {
       title: "Configuration chargée",
     })
@@ -1747,5 +1747,3 @@ export default function BudgetSimulatorPage() {
     </div>
   )
 }
-
-

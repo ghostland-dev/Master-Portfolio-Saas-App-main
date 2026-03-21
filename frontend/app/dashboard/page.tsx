@@ -23,7 +23,7 @@ export default function DashboardPage() {
   const { messages, loading: messagesLoading } = useMessages()
   const { invoices, loading: invoicesLoading } = useInvoices()
   const { feedbacks, loading: feedbacksLoading } = useFeedbacks()
-  
+
   const [searchQuery, setSearchQuery] = useState("")
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [filteredProjects, setFilteredProjects] = useState<any[]>([])
@@ -48,11 +48,11 @@ export default function DashboardPage() {
     try {
       // Filtrer les données en fonction du rôle de l'utilisateur et de la recherche
       const projectsData = projects.filter((project: any) => {
-        const matchesSearch = !debouncedSearchQuery || 
+        const matchesSearch = !debouncedSearchQuery ||
           project.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           project.client?.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           project.client?.company?.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
-        
+
         return isAdmin ? matchesSearch : (project.client_id === user.id && matchesSearch)
       })
 
@@ -61,8 +61,8 @@ export default function DashboardPage() {
           message.subject.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           message.sender?.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           message.content.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
-        
-        return isAdmin ? matchesSearch : 
+
+        return isAdmin ? matchesSearch :
           (message.sender_id === user.id || message.recipient_id === user.id) && matchesSearch
       })
 
@@ -70,7 +70,7 @@ export default function DashboardPage() {
         const matchesSearch = !debouncedSearchQuery ||
           invoice.invoice_number.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           invoice.client?.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
-        
+
         return isAdmin ? matchesSearch : (invoice.client_id === user.id && matchesSearch)
       })
 
@@ -78,7 +78,7 @@ export default function DashboardPage() {
         const matchesSearch = !debouncedSearchQuery ||
           feedback.comment.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
           feedback.projectTitle.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
-        
+
         return isAdmin ? matchesSearch : (feedback.client_id === user.id && matchesSearch)
       })
 
@@ -840,4 +840,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-

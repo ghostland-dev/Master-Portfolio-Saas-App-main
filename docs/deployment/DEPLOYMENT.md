@@ -266,7 +266,7 @@ docker-compose exec db psql -U postgres -d portfolio_prod -f /path/to/migration.
    ```bash
    # Vérifier les logs
    ./scripts/ops/start.sh logs
-   
+
    # Vérifier les ports
    netstat -tulpn | grep :3000
    ```
@@ -275,7 +275,7 @@ docker-compose exec db psql -U postgres -d portfolio_prod -f /path/to/migration.
    ```bash
    # Vérifier le conteneur
    docker-compose ps db
-   
+
    # Vérifier les logs
    docker-compose logs db
    ```
@@ -284,7 +284,7 @@ docker-compose exec db psql -U postgres -d portfolio_prod -f /path/to/migration.
    ```bash
    # Nettoyer Docker
    docker system prune -a
-   
+
    # Vérifier l'espace disque
    df -h
    ```

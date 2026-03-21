@@ -27,4 +27,3 @@ export function TechCard({ name, description, className, iconSize = 48 }: TechCa
     </Card>
   )
 }
-

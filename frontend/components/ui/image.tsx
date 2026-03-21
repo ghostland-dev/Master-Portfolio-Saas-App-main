@@ -15,16 +15,16 @@ interface CustomImageProps {
   [key: string]: any
 }
 
-export function CustomImage({ 
-  src, 
-  alt, 
-  className = "", 
+export function CustomImage({
+  src,
+  alt,
+  className = "",
   fill = false,
   width,
   height,
   priority = false,
   loading = "lazy",
-  ...props 
+  ...props
 }: CustomImageProps) {
   const [mounted, setMounted] = useState(false)
 

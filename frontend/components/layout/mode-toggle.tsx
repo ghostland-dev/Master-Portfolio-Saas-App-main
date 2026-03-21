@@ -162,4 +162,3 @@ export function ModeToggle({ variant = "dropdown" }: { variant?: "dropdown" | "s
     </DropdownMenu>
   )
 }
-

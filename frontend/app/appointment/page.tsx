@@ -168,8 +168,8 @@ export default function AppointmentPage() {
           {[1, 2, 3, 4].map((stepNumber) => (
             <div key={stepNumber} className="flex items-center">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                step >= stepNumber 
-                  ? "bg-primary text-primary-foreground" 
+                step >= stepNumber
+                  ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground"
               }`}>
                 {stepNumber}

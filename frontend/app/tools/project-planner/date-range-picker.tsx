@@ -63,4 +63,3 @@ export function DateRangePicker({ className, date, setDate, onDateChange }: Date
     </div>
   )
 }
-

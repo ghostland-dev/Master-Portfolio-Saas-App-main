@@ -37,25 +37,25 @@ export const useToast = () => {
           ...toastConfig,
           icon: React.createElement(Icon, { name: "CheckCircle", className: "h-4 w-4" }),
         })
-      
+
       case "error":
         return toast.error(title || "Erreur", {
           ...toastConfig,
           icon: React.createElement(Icon, { name: "XCircle", className: "h-4 w-4" }),
         })
-      
+
       case "warning":
         return toast.warning(title || "Attention", {
           ...toastConfig,
           icon: React.createElement(Icon, { name: "AlertTriangle", className: "h-4 w-4" }),
         })
-      
+
       case "info":
         return toast.info(title || "Information", {
           ...toastConfig,
           icon: React.createElement(Icon, { name: "Info", className: "h-4 w-4" }),
         })
-      
+
       default:
         return toast(message, toastConfig)
     }
@@ -63,13 +63,13 @@ export const useToast = () => {
 
   return {
     toast: showToast,
-    success: (message: string, options?: ToastOptions) => 
+    success: (message: string, options?: ToastOptions) =>
       showToast("success", message, options),
-    error: (message: string, options?: ToastOptions) => 
+    error: (message: string, options?: ToastOptions) =>
       showToast("error", message, options),
-    warning: (message: string, options?: ToastOptions) => 
+    warning: (message: string, options?: ToastOptions) =>
       showToast("warning", message, options),
-    info: (message: string, options?: ToastOptions) => 
+    info: (message: string, options?: ToastOptions) =>
       showToast("info", message, options),
     dismiss: toast.dismiss,
     promise: toast.promise,

@@ -38,7 +38,7 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
 
     const observer = new PerformanceObserver((list) => {
       const entries = list.getEntries()
-      
+
       entries.forEach((entry) => {
         if (entry.entryType === "paint") {
           if (entry.name === "first-contentful-paint") {
@@ -48,23 +48,23 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
             setMetrics(prev => ({ ...prev, fmp: entry.startTime }))
           }
         }
-        
+
         if (entry.entryType === "largest-contentful-paint") {
           setMetrics(prev => ({ ...prev, lcp: entry.startTime }))
         }
-        
+
         if (entry.entryType === "first-input") {
           const fi = entry as PerformanceEventTiming
           setMetrics((prev) => ({ ...prev, fid: fi.processingStart - fi.startTime }))
         }
-        
+
         if (entry.entryType === "layout-shift" && !(entry as any).hadRecentInput) {
-          setMetrics(prev => ({ 
-            ...prev, 
-            cls: (prev.cls || 0) + (entry as any).value 
+          setMetrics(prev => ({
+            ...prev,
+            cls: (prev.cls || 0) + (entry as any).value
           }))
         }
-        
+
         if (entry.entryType === "navigation") {
           const nav = entry as PerformanceNavigationTiming
           setMetrics((prev) => ({
@@ -145,16 +145,16 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
                 <span className="text-xs text-muted-foreground">
                   {Math.round(metrics.fcp)}ms
                 </span>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`text-xs ${getScoreColor(fcpScore)} text-white`}
                 >
                   {getScoreLabel(fcpScore)}
                 </Badge>
               </div>
             </div>
-            <Progress 
-              value={Math.min((metrics.fcp / 3000) * 100, 100)} 
+            <Progress
+              value={Math.min((metrics.fcp / 3000) * 100, 100)}
               className="h-1"
             />
           </div>
@@ -169,16 +169,16 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
                 <span className="text-xs text-muted-foreground">
                   {Math.round(metrics.lcp)}ms
                 </span>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`text-xs ${getScoreColor(lcpScore)} text-white`}
                 >
                   {getScoreLabel(lcpScore)}
                 </Badge>
               </div>
             </div>
-            <Progress 
-              value={Math.min((metrics.lcp / 4000) * 100, 100)} 
+            <Progress
+              value={Math.min((metrics.lcp / 4000) * 100, 100)}
               className="h-1"
             />
           </div>
@@ -193,16 +193,16 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
                 <span className="text-xs text-muted-foreground">
                   {Math.round(metrics.fid)}ms
                 </span>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`text-xs ${getScoreColor(fidScore)} text-white`}
                 >
                   {getScoreLabel(fidScore)}
                 </Badge>
               </div>
             </div>
-            <Progress 
-              value={Math.min((metrics.fid / 300) * 100, 100)} 
+            <Progress
+              value={Math.min((metrics.fid / 300) * 100, 100)}
               className="h-1"
             />
           </div>
@@ -217,16 +217,16 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
                 <span className="text-xs text-muted-foreground">
                   {metrics.cls.toFixed(3)}
                 </span>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`text-xs ${getScoreColor(clsScore)} text-white`}
                 >
                   {getScoreLabel(clsScore)}
                 </Badge>
               </div>
             </div>
-            <Progress 
-              value={Math.min((metrics.cls / 0.25) * 100, 100)} 
+            <Progress
+              value={Math.min((metrics.cls / 0.25) * 100, 100)}
               className="h-1"
             />
           </div>
@@ -241,16 +241,16 @@ export function PerformanceMonitor({ showDetails = false, className = "" }: Perf
                 <span className="text-xs text-muted-foreground">
                   {Math.round(metrics.ttfb)}ms
                 </span>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`text-xs ${getScoreColor(ttfbScore)} text-white`}
                 >
                   {getScoreLabel(ttfbScore)}
                 </Badge>
               </div>
             </div>
-            <Progress 
-              value={Math.min((metrics.ttfb / 1800) * 100, 100)} 
+            <Progress
+              value={Math.min((metrics.ttfb / 1800) * 100, 100)}
               className="h-1"
             />
           </div>

@@ -20,4 +20,3 @@ export function TechGrid({ technologies, className, iconSize }: TechGridProps) {
     </div>
   )
 }
-

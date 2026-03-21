@@ -29,19 +29,19 @@ export function ContactForm() {
 
   const handleSubmit = async (values: ContactFormData, { resetForm }: any) => {
     setIsSubmitting(true)
-    
+
     try {
       // Simulation d'un appel API
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
       // Ici, vous pouvez ajouter votre logique d'envoi d'email
       console.log("Données du formulaire:", values)
-      
+
       success("Message envoyé avec succès!", {
         description: "Nous vous répondrons dans les plus brefs délais.",
         duration: 5000,
       })
-      
+
       resetForm()
     } catch {
       error("Erreur lors de l'envoi", {

@@ -41,21 +41,21 @@ print_warning() {
 # Fonction de sauvegarde
 backup_data() {
     print_status "Début de la sauvegarde..."
-    
+
     # Créer le répertoire de sauvegarde
     mkdir -p $BACKUP_DIR
-    
+
     # Sauvegarde de la base de données
     print_status "Sauvegarde de la base de données..."
     docker exec supabase-db pg_dump -U postgres postgres > $BACKUP_DIR/db_backup_$DATE.sql
-    
+
     # Compression
     gzip $BACKUP_DIR/db_backup_$DATE.sql
-    
+
     # Sauvegarde des volumes Docker
     print_status "Sauvegarde des volumes Docker..."
     docker run --rm -v portfolio_db-data:/data -v $BACKUP_DIR:/backup alpine tar czf /backup/volumes_backup_$DATE.tar.gz -C /data .
-    
+
     # Sauvegarde de la configuration
     print_status "Sauvegarde de la configuration..."
     tar czf $BACKUP_DIR/config_backup_$DATE.tar.gz \
@@ -66,82 +66,82 @@ backup_data() {
         next.config.mjs \
         tailwind.config.js \
         package.json
-    
+
     # Nettoyage des anciennes sauvegardes (30 jours)
     find $BACKUP_DIR -name "*.sql.gz" -mtime +30 -delete
     find $BACKUP_DIR -name "*.tar.gz" -mtime +30 -delete
-    
+
     print_success "Sauvegarde terminée: $BACKUP_DIR"
 }
 
 # Fonction de nettoyage
 cleanup_system() {
     print_status "Début du nettoyage..."
-    
+
     # Nettoyage Docker
     print_status "Nettoyage des conteneurs Docker..."
     docker system prune -f
-    
+
     # Nettoyage des images inutilisées
     print_status "Nettoyage des images Docker..."
     docker image prune -f
-    
+
     # Nettoyage des volumes inutilisés
     print_status "Nettoyage des volumes Docker..."
     docker volume prune -f
-    
+
     # Nettoyage des logs
     print_status "Nettoyage des logs..."
     find /var/log -name "*.log" -mtime +7 -delete 2>/dev/null || true
-    
+
     # Nettoyage des fichiers temporaires
     print_status "Nettoyage des fichiers temporaires..."
     find /tmp -type f -mtime +1 -delete 2>/dev/null || true
-    
+
     print_success "Nettoyage terminé"
 }
 
 # Fonction de mise à jour
 update_application() {
     print_status "Début de la mise à jour..."
-    
+
     # Sauvegarde avant mise à jour
     backup_data
-    
+
     # Arrêt des services
     print_status "Arrêt des services..."
     docker-compose down
-    
+
     # Mise à jour du code (si git est disponible)
     if command -v git &> /dev/null; then
         print_status "Mise à jour du code..."
         git pull origin main
     fi
-    
+
     # Reconstruction des images
     print_status "Reconstruction des images..."
     docker-compose build --no-cache
-    
+
     # Redémarrage des services
     print_status "Redémarrage des services..."
     docker-compose up -d
-    
+
     # Attente du démarrage
     sleep 30
-    
+
     # Vérification de la santé
     health_check
-    
+
     print_success "Mise à jour terminée"
 }
 
 # Fonction de vérification de santé
 health_check() {
     print_status "Vérification de la santé de l'application..."
-    
+
     local health_score=0
     local total_checks=5
-    
+
     # Test de l'application principale
     if curl -s http://localhost:3000 > /dev/null; then
         print_success "Application principale: OK"
@@ -149,7 +149,7 @@ health_check() {
     else
         print_error "Application principale: KO"
     fi
-    
+
     # Test de la base de données
     if docker exec supabase-db pg_isready -U postgres > /dev/null 2>&1; then
         print_success "Base de données: OK"
@@ -157,7 +157,7 @@ health_check() {
     else
         print_error "Base de données: KO"
     fi
-    
+
     # Test de MailHog
     if curl -s http://localhost:8025 > /dev/null; then
         print_success "MailHog: OK"
@@ -165,7 +165,7 @@ health_check() {
     else
         print_error "MailHog: KO"
     fi
-    
+
     # Test de Kong
     if curl -s http://localhost:8001 > /dev/null; then
         print_success "Kong API: OK"
@@ -173,7 +173,7 @@ health_check() {
     else
         print_error "Kong API: KO"
     fi
-    
+
     # Vérification des ressources
     local memory_usage=$(docker stats --no-stream --format "{{.MemUsage}}" portfolio-app | cut -d'/' -f1 | sed 's/[^0-9.]//g')
     if (( $(echo "$memory_usage < 1000" | bc -l) )); then
@@ -182,11 +182,11 @@ health_check() {
     else
         print_warning "Utilisation mémoire élevée: $memory_usage MB"
     fi
-    
+
     # Score de santé
     local health_percentage=$((health_score * 100 / total_checks))
     print_status "Score de santé: $health_score/$total_checks ($health_percentage%)"
-    
+
     if [ $health_percentage -ge 80 ]; then
         print_success "Application en bonne santé"
         return 0
@@ -199,10 +199,10 @@ health_check() {
 # Fonction de surveillance des logs
 monitor_logs() {
     print_status "Surveillance des logs (Ctrl+C pour quitter)..."
-    
+
     # Créer le répertoire de logs
     mkdir -p $LOG_DIR
-    
+
     # Surveillance des logs d'erreur
     docker-compose logs -f --tail=100 2>&1 | tee $LOG_DIR/application_$DATE.log
 }
@@ -210,7 +210,7 @@ monitor_logs() {
 # Fonction de redémarrage intelligent
 restart_services() {
     print_status "Redémarrage intelligent des services..."
-    
+
     # Vérification de la santé avant redémarrage
     if ! health_check; then
         print_warning "Problèmes détectés, redémarrage complet..."
@@ -221,10 +221,10 @@ restart_services() {
         print_status "Redémarrage des services individuels..."
         docker-compose restart
     fi
-    
+
     # Attente du redémarrage
     sleep 30
-    
+
     # Vérification post-redémarrage
     if health_check; then
         print_success "Redémarrage réussi"
@@ -236,9 +236,9 @@ restart_services() {
 # Fonction de rapport de maintenance
 generate_report() {
     print_status "Génération du rapport de maintenance..."
-    
+
     local report_file="$LOG_DIR/maintenance_report_$DATE.txt"
-    
+
     {
         echo "=== RAPPORT DE MAINTENANCE - $(date) ==="
         echo ""
@@ -257,7 +257,7 @@ generate_report() {
         echo "5. LOGS RÉCENTS:"
         docker-compose logs --tail=50
     } > $report_file
-    
+
     print_success "Rapport généré: $report_file"
 }
 

@@ -90,22 +90,22 @@ portfolio.example.com {
         header_up X-Forwarded-For {remote}
         header_up X-Forwarded-Proto {scheme}
     }
-    
+
     # API routes
     handle /api/* {
         reverse_proxy localhost:8001
     }
-    
+
     # Studio
     handle /studio/* {
         reverse_proxy localhost:8001
     }
-    
+
     # Health check
     handle /health {
         respond "OK" 200
     }
-    
+
     # Security headers
     header {
         X-Content-Type-Options nosniff
@@ -114,10 +114,10 @@ portfolio.example.com {
         Referrer-Policy strict-origin-when-cross-origin
         Permissions-Policy "geolocation=(), microphone=(), camera=()"
     }
-    
+
     # Compression
     encode gzip
-    
+
     # Logging
     log {
         output file /var/log/caddy/portfolio.log

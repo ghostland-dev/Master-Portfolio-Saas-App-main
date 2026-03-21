@@ -30,7 +30,7 @@ export async function POST(req: Request) {
       if (checkoutSession.mode === 'subscription') {
         const subscriptionId = checkoutSession.subscription
         const userId = checkoutSession.metadata.userId
-        
+
         // Mettre à jour le statut dans Supabase
         await supabase
           .from('profiles')
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
           .from('profiles')
           .update({ subscription_status: 'none' })
           .eq('id', sub.user_id)
-        
+
         await supabase.from('subscriptions').delete().eq('id', deletedSub.id)
       }
       break

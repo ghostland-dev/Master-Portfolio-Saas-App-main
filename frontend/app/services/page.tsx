@@ -18,4 +18,3 @@ export default async function ServicesPage() {
   ])
   return <ServicesClientPage services={services} technologies={technologies} tools={tools} />
 }
-

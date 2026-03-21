@@ -472,4 +472,3 @@ export default function ServicesClientPage({ services, technologies, tools }: Se
     </main>
   )
 }
-

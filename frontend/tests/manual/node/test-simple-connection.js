@@ -6,37 +6,37 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 async function testSimpleConnection() {
   console.log('🔍 Test de connexion simplifiée à Supabase...')
-  
+
   try {
     const supabase = createClient(supabaseUrl, supabaseKey)
-    
+
     // Test de connexion avec timeout
     console.log('\n1. Test de connexion avec timeout...')
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 secondes timeout
-    
+
     try {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .limit(1)
         .abortSignal(controller.signal)
-      
+
       clearTimeout(timeoutId)
-      
+
       if (error) {
         console.error('❌ Erreur de connexion:', error.message)
         return false
       }
-      
+
       console.log('✅ Connexion réussie!')
       console.log('📊 Données récupérées:', data)
-      
+
       // Test des autres tables
       console.log('\n2. Test des autres tables...')
-      
+
       const tables = ['skills', 'experiences', 'educations', 'contact_messages', 'resources']
-      
+
       for (const table of tables) {
         try {
           const { data: tableData, error: tableError } = await supabase
@@ -44,7 +44,7 @@ async function testSimpleConnection() {
             .select('*')
             .limit(1)
             .abortSignal(controller.signal)
-          
+
           if (tableError) {
             console.log(`❌ Table ${table}: ${tableError.message}`)
           } else {
@@ -54,9 +54,9 @@ async function testSimpleConnection() {
           console.log(`❌ Table ${table}: ${err.message}`)
         }
       }
-      
+
       return true
-      
+
     } catch (error) {
       clearTimeout(timeoutId)
       if (error.name === 'AbortError') {
@@ -66,7 +66,7 @@ async function testSimpleConnection() {
       }
       return false
     }
-    
+
   } catch (error) {
     console.error('❌ Erreur fatale:', error.message)
     return false
