@@ -40,3 +40,11 @@ docker-data/
 # Database backups
 *.sql
 *.dump
+
+# Test artifacts (generated - do not commit)
+/coverage/
+/test-results/
+
+# Extra lock files (project uses npm)
+bun.lock
+yarn.lock

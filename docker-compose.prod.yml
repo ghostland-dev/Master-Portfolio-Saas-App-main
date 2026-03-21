@@ -1,152 +1,227 @@
-# Configuration Docker Compose pour la production
-# Usage: docker-compose -f docker-compose.prod.yml up -d
-
-version: '3.8'
+# Supabase Production Stack
 
 services:
-  # Application Next.js
+  # Next.js Application
   app:
     container_name: portfolio-app-prod
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/portfolio-saas-frontend:latest
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-    depends_on:
-      - db
+      - NEXT_PUBLIC_SUPABASE_URL=https://${DOMAIN:-localhost}/api
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
+      - SUPABASE_SERVER_URL=http://kong:8000
     networks:
       - portfolio-network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    depends_on:
+      - kong
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
 
-  # Base de données PostgreSQL
+  # Database
   db:
-    container_name: portfolio-db-prod
-    image: postgres:15-alpine
+    container_name: supabase-db-prod
+    image: supabase/postgres:15.1.1.78
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRY: ${JWT_EXPIRY:-3600}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./supabase/000-roles.sql:/docker-entrypoint-initdb.d/000-roles.sql:ro
-      - ./supabase/001-plain-postgres-auth-stubs.sql:/docker-entrypoint-initdb.d/001-plain-postgres-auth-stubs.sql:ro
-      - ./supabase/002-seed.sql:/docker-entrypoint-initdb.d/002-seed.sql:ro
-    networks:
-      - portfolio-network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      - ./backend/supabase/000-roles.sql:/docker-entrypoint-initdb.d/000-roles.sql:ro
+      - ./backend/supabase/001-plain-postgres-auth-stubs.sql:/docker-entrypoint-initdb.d/001-plain-postgres-auth-stubs.sql:ro
+      - ./backend/supabase/002-seed.sql:/docker-entrypoint-initdb.d/002-seed.sql:ro
+      - ./backend/supabase/003-site-content.sql:/docker-entrypoint-initdb.d/003-site-content.sql:ro
+      - ./backend/supabase/migrations/20240321000001_add_stripe_subscriptions.sql:/docker-entrypoint-initdb.d/20240321000001_add_stripe_subscriptions.sql:ro
+      - postgres_data:/var/lib/postgresql/data:Z
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Redis pour le cache (optionnel)
-  redis:
-    container_name: portfolio-redis-prod
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-defaultpassword}
-    volumes:
-      - redis_data:/data
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - portfolio-network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
-  # Nginx Reverse Proxy
-  nginx:
-    container_name: portfolio-nginx-prod
-    image: nginx:alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./ssl:/etc/nginx/ssl:ro
+  # Auth (GoTrue)
+  auth:
+    container_name: supabase-auth-prod
+    image: supabase/gotrue:v2.158.1
     depends_on:
-      - app
-    networks:
-      - portfolio-network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # Monitoring avec Prometheus (optionnel)
-  prometheus:
-    container_name: portfolio-prometheus-prod
-    image: prom/prometheus:latest
+      db:
+        condition: service_healthy
     restart: unless-stopped
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    networks:
-      - portfolio-network
-
-  # Monitoring avec Grafana (optionnel)
-  grafana:
-    container_name: portfolio-grafana-prod
-    image: grafana/grafana:latest
-    restart: unless-stopped
-    ports:
-      - "3001:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: https://${DOMAIN:-localhost}/api/auth
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-postgres}
+      GOTRUE_SITE_URL: https://${DOMAIN:-localhost}
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: ${JWT_EXPIRY:-3600}
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: ${ENABLE_EMAIL_SIGNUP:-true}
+      GOTRUE_SMTP_HOST: ${SMTP_HOST}
+      GOTRUE_SMTP_PORT: ${SMTP_PORT}
+      GOTRUE_SMTP_USER: ${SMTP_USER}
+      GOTRUE_SMTP_PASS: ${SMTP_PASS}
     networks:
       - portfolio-network
 
-volumes:
-  postgres_data:
-    driver: local
-  redis_data:
-    driver: local
-  prometheus_data:
-    driver: local
-  grafana_data:
-    driver: local
+  # REST (PostgREST)
+  rest:
+    container_name: supabase-rest-prod
+    image: postgrest/postgrest:v12.2.0
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-postgres}
+      PGRST_DB_SCHEMAS: public,storage,_analytics
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - portfolio-network
+
+  # Kong API Gateway
+  kong:
+    container_name: supabase-kong-prod
+    image: kong:2.8.1
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /home/kong/kong.yml
+    volumes:
+      - ./deploy/kong.yml:/home/kong/kong.yml:ro
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+    networks:
+      - portfolio-network
+    depends_on:
+      - auth
+      - rest
+      - studio
+      - realtime
+      - storage
+
+  # Realtime
+  realtime:
+    container_name: supabase-realtime-prod
+    image: supabase/realtime:v2.30.15
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB:-postgres}
+      DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
+      DB_ENC_KEY: supabaserealtime
+      API_JWT_SECRET: ${JWT_SECRET}
+      APP_NAME: realtime
+      SECRET_KEY_BASE: ${REALTIME_SECRET_KEY_BASE:-UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq}
+      ERL_AFLAGS: -proto_dist inet_tcp
+    networks:
+      - portfolio-network
+
+  # Storage
+  storage:
+    container_name: supabase-storage-prod
+    image: supabase/storage-api:v1.11.3
+    depends_on:
+      db:
+        condition: service_healthy
+      rest:
+        condition: service_started
+      imgproxy:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      ANON_KEY: ${ANON_KEY}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-postgres}
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: "true"
+      IMGPROXY_URL: http://imgproxy:5001
+    volumes:
+      - storage_data:/var/lib/storage
+    networks:
+      - portfolio-network
+
+  # Image proxy
+  imgproxy:
+    container_name: supabase-imgproxy-prod
+    image: darthsim/imgproxy:v3.8.0
+    restart: unless-stopped
+    environment:
+      IMGPROXY_BIND: ":5001"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /var/lib/storage
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_SIGNATURE_SIZE: 32
+      IMGPROXY_SALT: "73757061626173652d73746f726167652d73616c74"
+      IMGPROXY_KEY: "73757061626173652d73746f726167652d6b6579"
+    volumes:
+      - storage_data:/var/lib/storage
+    networks:
+      - portfolio-network
+
+  # Postgres Meta (Dependency for Studio)
+  meta:
+    container_name: supabase-meta-prod
+    image: supabase/postgres-meta:v0.80.0
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: db
+      PG_META_DB_PORT: 5432
+      PG_META_DB_NAME: ${POSTGRES_DB:-postgres}
+      PG_META_DB_USER: postgres
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - portfolio-network
+
+  # Supabase Studio
+  studio:
+    container_name: supabase-studio-prod
+    image: supabase/studio:latest
+    depends_on:
+      meta:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      STUDIO_PG_META_URL: http://meta:8080
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SUPABASE_URL: http://kong:8000
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    networks:
+      - portfolio-network
 
 networks:
   portfolio-network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres_data:
+  storage_data:

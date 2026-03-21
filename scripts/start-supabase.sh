@@ -18,7 +18,7 @@ fi
 # Créer le fichier .env.local s'il n'existe pas
 if [ ! -f .env.local ]; then
     echo "📝 Création du fichier .env.local..."
-    cp supabase.env .env.local
+    cp backend/supabase.env .env.local
     echo "✅ Fichier .env.local créé. Veuillez le personnaliser selon vos besoins."
 fi
 
@@ -30,7 +30,7 @@ mkdir -p supabase/functions
 
 # Démarrer les services Supabase
 echo "🐳 Démarrage des services Docker..."
-docker-compose --env-file supabase.env up -d
+docker compose --env-file backend/supabase.env up -d
 
 # Attendre que les services soient prêts
 echo "⏳ Attente du démarrage des services..."
@@ -52,8 +52,8 @@ echo "   - API Storage: http://localhost:8000/storage/v1/"
 echo "   - Base de données: localhost:54322"
 echo ""
 echo "🔑 Clés d'API :"
-echo "   - Anon Key: $(grep ANON_KEY supabase.env | cut -d'=' -f2)"
-echo "   - Service Role Key: $(grep SERVICE_ROLE_KEY supabase.env | cut -d'=' -f2)"
+echo "   - Anon Key: $(grep ANON_KEY backend/supabase.env | cut -d'=' -f2)"
+echo "   - Service Role Key: $(grep SERVICE_ROLE_KEY backend/supabase.env | cut -d'=' -f2)"
 echo ""
 echo "📚 Pour arrêter les services :"
 echo "   docker-compose down"

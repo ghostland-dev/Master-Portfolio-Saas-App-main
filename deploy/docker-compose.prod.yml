@@ -34,6 +34,8 @@ services:
       - db-data:/var/lib/postgresql/data
       - ../supabase/000-roles.sql:/docker-entrypoint-initdb.d/000-roles.sql:ro
       - ../supabase/002-seed.sql:/docker-entrypoint-initdb.d/002-seed.sql:ro
+      - ../supabase/003-site-content.sql:/docker-entrypoint-initdb.d/003-site-content.sql:ro
+      - ../supabase/z-seed-auth-users.sql:/docker-entrypoint-initdb.d/z-seed-auth-users.sql:ro
     networks:
       - app-network
     healthcheck:

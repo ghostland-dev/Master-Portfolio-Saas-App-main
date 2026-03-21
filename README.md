@@ -42,80 +42,36 @@ As a full-stack developer and DevOps engineer, I focus on delivering scalable an
 
 ## Installation
 
-To run the project locally, follow these steps:
+Le projet est maintenant structuré en **Monorepo** pour une séparation claire des responsabilités.
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
-
-2. Navigate to the project directory:
-   ```bash
-   cd ismail-mouyahada-portfolio
-   ```
-
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-The application will be accessible at `http://localhost:3000`.
-
-## 🚀 Déploiement Rapide
-
-### Option 1: Déploiement Vercel (Recommandé)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Ismail-Mouyahada/Master-Portfolio-Saas-App-main)
-
-1. Cliquez sur le bouton "Deploy with Vercel" ci-dessus
-2. Connectez votre compte GitHub
-3. Configurez les variables d'environnement Supabase
-4. Déployez en un clic !
-
-### Option 2: Déploiement Local
-
+### 1. Développement Local (Frontend)
 ```bash
-# Installation des dépendances
+cd frontend
 npm install
-
-# Configuration des variables d'environnement
-cp config/examples/env.vercel.example .env.local
-# Éditez .env.local avec vos clés Supabase
-
-# Démarrage du serveur de développement
 npm run dev
 ```
+L'application sera accessible sur `http://localhost:3000`.
 
-### Option 3: Déploiement Serveur Dédié
+### 2. Stack Complète (Docker)
+Depuis la racine du projet :
+```bash
+docker compose up -d
+```
+Ceci lance l'application Next.js (`localhost:3000`) et la stack Supabase complète (`localhost:8001`).
 
-Consultez le guide complet dans `deploy/README.md` pour le déploiement sur serveur dédié avec Docker.
+## 🏗️ Structure du Monorepo
 
-## Structure du dépôt
+| Dossier | Contenu |
+|---------|---------|
+| `frontend/` | Application Next.js (App Router, Tailwind, TypeScript) |
+| `backend/` | Infrastructure Supabase (Postgres, Kong, etc.) |
+| `infra/` | **Infrastructure as Code (IaC)** : Terraform (AWS) et Kubernetes (K8s) |
+| `monitoring/` | Configuration Prometheus et Healthchecks |
+| `docs/` | Documentation du projet |
+| `.github/workflows/` | **CI/CD DevSecOps** : Tests, Scans de sécurité (SAST), Build et Deploy |
 
-| Dossier / fichier | Rôle |
-|-------------------|------|
-| `app/` | Routes Next.js (App Router), pages et API |
-| `components/` | Composants React réutilisables |
-| `hooks/` | Hooks React |
-| `lib/` | Utilitaires, client Supabase, schémas |
-| `public/` | Assets statiques |
-| `scripts/` | Scripts shell (Docker, déploiement, CI locale) |
-| `scripts/ops/` | Démarrage stack, tests manuels, déploiement, maintenance |
-| `tests/` | Jest (`unit`, `integration`) et Playwright (`e2e`) |
-| `tests/manual/node/` | Anciens scripts Node de test / debug (hors CI) |
-| `docs/` | Documentation (déploiement, guides) |
-| `docs/assets/` | Captures et médias pour la doc |
-| `config/examples/` | Exemples d’environnement, crontab |
-| `supabase/` | Docker, SQL d’init, seeds manuels |
-| `supabase/seed-manual/` | Scripts SQL d’injection de données (hors migrations versionnées) |
-| `deploy/` | Guides et fichiers liés au déploiement serveur |
-| `monitoring/` | Config Prometheus / health checks |
-| `pages/` | `_document` / `_app` (compat build Next.js) |
+Index de la documentation : [`docs/README.md`](docs/README.md).
+
 
 Index de la documentation : [`docs/README.md`](docs/README.md).
 

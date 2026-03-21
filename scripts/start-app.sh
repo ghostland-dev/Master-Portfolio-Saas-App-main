@@ -30,25 +30,25 @@ fi
 # Créer le fichier .env.local s'il n'existe pas
 if [ ! -f .env.local ]; then
     echo "📝 Création du fichier .env.local..."
-    cp supabase.env .env.local
+    cp backend/supabase.env .env.local
     echo "✅ Fichier .env.local créé. Veuillez le personnaliser selon vos besoins."
 fi
 
 # Installer les dépendances si nécessaire
-if [ ! -d "node_modules" ]; then
+if [ ! -d "frontend/node_modules" ]; then
     echo "📦 Installation des dépendances npm..."
-    npm install
+    (cd frontend && npm install)
 fi
 
 # Créer les dossiers nécessaires
 echo "📁 Création des dossiers nécessaires..."
-mkdir -p supabase/storage
-mkdir -p supabase/migrations
-mkdir -p supabase/functions
+mkdir -p backend/supabase/storage
+mkdir -p backend/supabase/migrations
+mkdir -p backend/supabase/functions
 
 # Démarrer Supabase
 echo "🐳 Démarrage de Supabase..."
-docker-compose --env-file supabase.env up -d
+docker compose --env-file backend/supabase.env up -d
 
 # Attendre que Supabase soit prêt
 echo "⏳ Attente du démarrage de Supabase..."
@@ -56,9 +56,9 @@ sleep 30
 
 # Vérifier le statut de Supabase
 echo "🔍 Vérification du statut de Supabase..."
-if ! docker-compose --env-file supabase.env ps | grep -q "Up"; then
+if ! docker compose --env-file backend/supabase.env ps | grep -q "Up"; then
     echo "❌ Erreur lors du démarrage de Supabase"
-    docker-compose --env-file supabase.env logs
+    docker compose --env-file backend/supabase.env logs
     exit 1
 fi
 
@@ -77,8 +77,8 @@ echo "   - API Storage: http://localhost:8000/storage/v1/"
 echo "   - Base de données: localhost:54322"
 echo ""
 echo "🔑 Clés d'API :"
-echo "   - Anon Key: $(grep ANON_KEY supabase.env | cut -d'=' -f2)"
-echo "   - Service Role Key: $(grep SERVICE_ROLE_KEY supabase.env | cut -d'=' -f2)"
+echo "   - Anon Key: $(grep ANON_KEY backend/supabase.env | cut -d'=' -f2)"
+echo "   - Service Role Key: $(grep SERVICE_ROLE_KEY backend/supabase.env | cut -d'=' -f2)"
 echo ""
 echo "📚 Pour arrêter l'application :"
 echo "   ./scripts/stop-app.sh"
@@ -89,4 +89,4 @@ echo ""
 echo "🎉 Application démarrée ! Ouvrez http://localhost:3000 dans votre navigateur."
 
 # Démarrer Next.js en arrière-plan
-npm run dev
+(cd frontend && npm run dev)
