@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/portfolio-saas-frontend
+  IMAGE_NAME: ismail-mouyahada/portfolio-saas-frontend
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
