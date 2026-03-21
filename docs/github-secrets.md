@@ -2,8 +2,8 @@
 Since you are using the same server for Prod, Staging, and Dev, you only need to configure these 3 secrets:
 
 - `SERVER_HOST`: Your server's IP address or domain.
-- `SERVER_USERNAME`: Your SSH username.
-- `SSH_PRIVATE_KEY`: Your SSH private key.
+- `SERVER_USERNAME`: Your SSH username (e.g., `nomadops`).
+- `SERVER_PASSWORD`: Your SSH password.
 
 The deployment script will automatically isolate each environment in its own folder (e.g., `~/Apps/portfolio-saas/main`, `~/Apps/portfolio-saas/staging`).
 
