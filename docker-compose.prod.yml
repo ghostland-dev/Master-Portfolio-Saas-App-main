@@ -7,7 +7,7 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/portfolio-saas-frontend:latest
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${APP_PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_SUPABASE_URL=https://${DOMAIN:-localhost}/api
@@ -100,8 +100,8 @@ services:
     volumes:
       - ./deploy/kong.yml:/home/kong/kong.yml:ro
     ports:
-      - "8000:8000"
-      - "8443:8443"
+      - "${KONG_PORT:-8000}:8000"
+      - "${KONG_SSL_PORT:-8443}:8443"
     networks:
       - portfolio-network
     depends_on:

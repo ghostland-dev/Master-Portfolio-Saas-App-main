@@ -167,18 +167,30 @@ jobs:
             cd "~/Apps/portfolio-saas/${{ github.ref_name }}"
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             
-            # Determine domain based on branch (same logic as build)
+            # Determine domain and ports based on branch
             if [[ "${{ github.ref_name }}" == "main" ]]; then
               ENV_DOMAIN="${{ secrets.DOMAIN }}"
+              APP_PORT=3000
+              KONG_PORT=8000
+              KONG_SSL_PORT=8443
             elif [[ "${{ github.ref_name }}" == "staging" ]]; then
               ENV_DOMAIN="staging.${{ secrets.DOMAIN }}"
+              APP_PORT=3010
+              KONG_PORT=8010
+              KONG_SSL_PORT=8444
             else
               ENV_DOMAIN="dev.${{ secrets.DOMAIN }}"
+              APP_PORT=3020
+              KONG_PORT=8020
+              KONG_SSL_PORT=8445
             fi
 
             cat > .env << EOF
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
             DOMAIN=$ENV_DOMAIN
+            APP_PORT=$APP_PORT
+            KONG_PORT=$KONG_PORT
+            KONG_SSL_PORT=$KONG_SSL_PORT
             ANON_KEY=${{ secrets.ANON_KEY }}
             SERVICE_ROLE_KEY=${{ secrets.SERVICE_ROLE_KEY }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
