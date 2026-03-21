@@ -31,7 +31,7 @@ export default function FilesPage() {
   const { user, loading: authLoading } = useSupabase()
   const isAdmin = user?.user_metadata?.role === 'admin'
   const { projects, loading: projectsLoading } = useProjects()
-  
+
   const [files, setFiles] = useState<FileItem[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedProject, setSelectedProject] = useState("all")
@@ -178,11 +178,11 @@ export default function FilesPage() {
     setUploading(true)
     // Simuler l'upload
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     const newFileItem: FileItem = {
       id: `file${Date.now()}`,
       name: newFile.name,
-      type: newFile.file.type.startsWith('image/') ? 'image' : 
+      type: newFile.file.type.startsWith('image/') ? 'image' :
             newFile.file.type.includes('pdf') || newFile.file.type.includes('document') ? 'document' :
             newFile.file.type.includes('zip') || newFile.file.type.includes('rar') ? 'archive' :
             newFile.file.type.includes('text/') || newFile.file.type.includes('javascript') ? 'code' : 'other',
@@ -515,4 +515,3 @@ export default function FilesPage() {
     </div>
   )
 }
-

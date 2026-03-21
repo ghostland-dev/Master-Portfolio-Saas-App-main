@@ -77,7 +77,7 @@ export default function SettingsPage() {
     try {
       // Simuler la sauvegarde
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       toast("success", `Vos paramètres ${section} ont été mis à jour avec succès.`, {
         title: "Paramètres sauvegardés",
       })
@@ -99,7 +99,7 @@ export default function SettingsPage() {
     try {
       // Simuler le changement de mot de passe
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       toast("success", "Votre mot de passe a été mis à jour avec succès.", {
         title: "Mot de passe modifié",
       })
@@ -623,4 +623,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

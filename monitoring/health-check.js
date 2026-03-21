@@ -34,11 +34,11 @@ function makeRequest(url, timeout = 5000) {
         healthy: res.statusCode >= 200 && res.statusCode < 400
       });
     });
-    
+
     req.on('error', (err) => {
       reject(err);
     });
-    
+
     req.on('timeout', () => {
       req.destroy();
       reject(new Error('Timeout'));
@@ -49,7 +49,7 @@ function makeRequest(url, timeout = 5000) {
 // Fonction principale de vérification
 async function healthCheck() {
   console.log('🔍 Vérification de santé de l\'application...\n');
-  
+
   const checks = [
     {
       name: 'Application Next.js',
@@ -67,9 +67,9 @@ async function healthCheck() {
       critical: false
     }
   ];
-  
+
   const results = [];
-  
+
   for (const check of checks) {
     try {
       console.log(`⏳ Vérification de ${check.name}...`);
@@ -91,15 +91,15 @@ async function healthCheck() {
       console.log(`❌ ${check.name}: ${error.message}`);
     }
   }
-  
+
   // Résumé
   console.log('\n📊 Résumé des vérifications:');
   const healthy = results.filter(r => r.healthy).length;
   const total = results.length;
   const critical = results.filter(r => r.critical && !r.healthy);
-  
+
   console.log(`✅ Services sains: ${healthy}/${total}`);
-  
+
   if (critical.length > 0) {
     console.log('🚨 Services critiques en panne:');
     critical.forEach(service => {

@@ -43,7 +43,7 @@ print_warning() {
 # Fonction de test unitaire
 run_unit_tests() {
     print_status "Exécution des tests unitaires..."
-    
+
     if npm test -- --passWithNoTests --watchAll=false --coverage --silent; then
         print_success "Tests unitaires passés"
     else
@@ -55,7 +55,7 @@ run_unit_tests() {
 # Fonction de test d'intégration
 run_integration_tests() {
     print_status "Exécution des tests d'intégration..."
-    
+
     # Test de connectivité de l'application
     if curl -s http://localhost:3000 > /dev/null; then
         print_success "Application accessible"
@@ -63,7 +63,7 @@ run_integration_tests() {
         print_error "Application non accessible"
         return 1
     fi
-    
+
     # Test des pages principales
     local pages=("/" "/services/" "/portfolio/" "/tools/" "/tools/project-planner/" "/tools/budget-simulator/")
     for page in "${pages[@]}"; do
@@ -78,14 +78,14 @@ run_integration_tests() {
 # Fonction de test end-to-end
 run_e2e_tests() {
     print_status "Exécution des tests end-to-end..."
-    
+
     # Vérifier si Playwright est installé
     if ! command -v npx &> /dev/null; then
         print_warning "Playwright non disponible, installation..."
         npm install @playwright/test
         npx playwright install
     fi
-    
+
     # Exécuter les tests e2e
     if npx playwright test --reporter=line; then
         print_success "Tests end-to-end passés"
@@ -98,17 +98,17 @@ run_e2e_tests() {
 # Fonction de test de performance
 run_performance_tests() {
     print_status "Exécution des tests de performance..."
-    
+
     # Test de temps de réponse
     local response_time=$(curl -s -w "%{time_total}" -o /dev/null http://localhost:3000/)
     local response_time_ms=$(echo "$response_time * 1000" | bc)
-    
+
     if (( $(echo "$response_time < 1.0" | bc -l) )); then
         print_success "Temps de réponse acceptable: ${response_time_ms}ms"
     else
         print_warning "Temps de réponse élevé: ${response_time_ms}ms"
     fi
-    
+
     # Test de charge simple
     print_status "Test de charge (10 requêtes simultanées)..."
     local success_count=0
@@ -117,7 +117,7 @@ run_performance_tests() {
             ((success_count++))
         fi
     done
-    
+
     if [ $success_count -eq 10 ]; then
         print_success "Test de charge réussi: $success_count/10 requêtes"
     else
@@ -128,7 +128,7 @@ run_performance_tests() {
 # Fonction de test de sécurité
 run_security_tests() {
     print_status "Exécution des tests de sécurité..."
-    
+
     # Test des headers de sécurité
     local security_headers=("X-Frame-Options" "X-Content-Type-Options" "X-XSS-Protection")
     for header in "${security_headers[@]}"; do
@@ -138,7 +138,7 @@ run_security_tests() {
             print_warning "Header de sécurité $header manquant"
         fi
     done
-    
+
     # Test des ports ouverts
     print_status "Vérification des ports ouverts..."
     local open_ports=$(netstat -tuln | grep -E ":(3000|8025|8001|54322)" | wc -l)
@@ -152,7 +152,7 @@ run_security_tests() {
 # Fonction de test de configuration
 run_config_tests() {
     print_status "Vérification de la configuration..."
-    
+
     # Vérifier les fichiers de configuration
     local config_files=("package.json" "next.config.mjs" "tailwind.config.js" "docker-compose.yml")
     for file in "${config_files[@]}"; do
@@ -162,7 +162,7 @@ run_config_tests() {
             print_error "Fichier de configuration $file manquant"
         fi
     done
-    
+
     # Vérifier les variables d'environnement
     if [ -f ".env" ] || [ -f ".env.local" ]; then
         print_success "Variables d'environnement configurées"
@@ -175,40 +175,40 @@ run_config_tests() {
 run_all_tests() {
     print_status "=== DÉBUT DES TESTS COMPLETS ==="
     echo ""
-    
+
     # Tests de configuration
     run_config_tests
     echo ""
-    
+
     # Tests unitaires
     run_unit_tests
     echo ""
-    
+
     # Tests d'intégration
     run_integration_tests
     echo ""
-    
+
     # Tests de performance
     run_performance_tests
     echo ""
-    
+
     # Tests de sécurité
     run_security_tests
     echo ""
-    
+
     # Tests end-to-end (optionnel)
     if [ "$1" = "with-e2e" ]; then
         run_e2e_tests
         echo ""
     fi
-    
+
     # Résumé
     TOTAL_TESTS=$((PASSED_TESTS + FAILED_TESTS))
     echo "=== RÉSUMÉ DES TESTS ==="
     echo "Tests passés: $PASSED_TESTS"
     echo "Tests échoués: $FAILED_TESTS"
     echo "Total: $TOTAL_TESTS"
-    
+
     if [ $FAILED_TESTS -eq 0 ]; then
         print_success "Tous les tests sont passés ! 🎉"
         exit 0
@@ -221,12 +221,12 @@ run_all_tests() {
 # Fonction de test CI/CD
 run_ci_tests() {
     print_status "Exécution des tests CI/CD..."
-    
+
     # Tests rapides pour CI
     run_config_tests
     run_unit_tests
     run_integration_tests
-    
+
     # Résumé rapide
     echo "=== RÉSUMÉ CI/CD ==="
     echo "Tests passés: $PASSED_TESTS"

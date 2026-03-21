@@ -23,4 +23,3 @@ export function getAspectRatioClass(ratio: string) {
 
   return ratios[ratio as keyof typeof ratios] || "aspect-auto"
 }
-

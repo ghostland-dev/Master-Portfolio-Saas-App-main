@@ -7,24 +7,24 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 async function testDirectConnection() {
   console.log('🔍 Test de connexion directe à la base de données...')
   console.log('URL:', supabaseUrl)
-  
+
   try {
     const supabase = createClient(supabaseUrl, supabaseKey)
-    
+
     // Test de connexion basique
     console.log('\n1. Test de connexion basique...')
     const { data, error } = await supabase.from('projects').select('*').limit(1)
-    
+
     if (error) {
       console.error('❌ Erreur de connexion:', error.message)
       return false
     }
-    
+
     console.log('✅ Connexion réussie!')
     console.log('📊 Données récupérées:', data)
-    
+
     return true
-    
+
   } catch (error) {
     console.error('❌ Erreur fatale:', error.message)
     return false

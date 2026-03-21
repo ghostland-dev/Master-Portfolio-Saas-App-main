@@ -168,7 +168,7 @@ GOTRUE_SMTP_PASS=
    ```bash
    # Vérifier les ports
    netstat -tulpn | grep :3000
-   
+
    # Arrêter les services
    ./scripts/ops/start.sh stop
    ```
@@ -177,7 +177,7 @@ GOTRUE_SMTP_PASS=
    ```bash
    # Vérifier les logs
    docker logs supabase-db
-   
+
    # Redémarrer la base de données
    docker-compose restart db
    ```
@@ -186,7 +186,7 @@ GOTRUE_SMTP_PASS=
    ```bash
    # Vérifier les logs
    ./scripts/ops/start.sh logs
-   
+
    # Rebuild l'image
    docker-compose build --no-cache app
    ```

@@ -32,13 +32,13 @@ describe('ModeToggle', () => {
       if (initial === false) return [false, jest.fn()]
       return originalUseState(initial)
     })
-    
+
     render(<ModeToggle />)
     // Le composant ne montre plus "Chargement du thème" dans la version actuelle
     // Vérifions plutôt que le bouton est désactivé
     const button = screen.getByLabelText('Changer de thème')
     expect(button).toBeDisabled()
-    
+
     // Restore original useState
     jest.restoreAllMocks()
   })
@@ -50,17 +50,17 @@ describe('ModeToggle', () => {
       if (initial === false) return [true, jest.fn()] // mounted = true
       return originalUseState(initial)
     })
-    
+
     render(<ModeToggle />)
-    
+
     // Le bouton est dans un portail, utilisons getByLabelText
     const button = screen.getByLabelText('Changer de thème')
     fireEvent.click(button)
-    
+
     // Le composant ModeToggle utilise un menu déroulant, donc setTheme n'est pas appelé directement
     // Vérifions plutôt que le bouton est cliquable
     expect(button).toBeInTheDocument()
-    
+
     // Restore original useState
     jest.restoreAllMocks()
   })
@@ -73,7 +73,7 @@ describe('ModeToggle', () => {
     })
 
     render(<ModeToggle />)
-    
+
     expect(screen.getByTestId('sun-icon')).toBeInTheDocument()
   })
 
@@ -85,7 +85,7 @@ describe('ModeToggle', () => {
     })
 
     render(<ModeToggle />)
-    
+
     expect(screen.getByTestId('moon-icon')).toBeInTheDocument()
   })
 })

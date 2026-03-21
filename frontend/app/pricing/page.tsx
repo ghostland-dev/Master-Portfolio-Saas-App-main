@@ -112,11 +112,11 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <CheckoutButton 
-                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || "price_pro_id"} 
-                  userId="demo-user-id" 
-                  email="client@example.com" 
-                  label="Commencer" 
+                <CheckoutButton
+                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || "price_pro_id"}
+                  userId="demo-user-id"
+                  email="client@example.com"
+                  label="Commencer"
                 />
               </CardFooter>
             </Card>
@@ -159,11 +159,11 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <CheckoutButton 
-                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE || "price_enterprise_id"} 
-                  userId="demo-user-id" 
-                  email="client@example.com" 
-                  label="Commencer" 
+                <CheckoutButton
+                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE || "price_enterprise_id"}
+                  userId="demo-user-id"
+                  email="client@example.com"
+                  label="Commencer"
                 />
               </CardFooter>
             </Card>
@@ -213,11 +213,11 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <CheckoutButton 
-                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_BASIC_YEARLY || "price_basic_yearly_id"} 
-                  userId="demo-user-id" 
-                  email="client@example.com" 
-                  label="Commencer" 
+                <CheckoutButton
+                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_BASIC_YEARLY || "price_basic_yearly_id"}
+                  userId="demo-user-id"
+                  email="client@example.com"
+                  label="Commencer"
                 />
               </CardFooter>
             </Card>
@@ -266,11 +266,11 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <CheckoutButton 
-                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY || "price_pro_yearly_id"} 
-                  userId="demo-user-id" 
-                  email="client@example.com" 
-                  label="Commencer" 
+                <CheckoutButton
+                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY || "price_pro_yearly_id"}
+                  userId="demo-user-id"
+                  email="client@example.com"
+                  label="Commencer"
                 />
               </CardFooter>
             </Card>
@@ -316,11 +316,11 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <CheckoutButton 
-                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_YEARLY || "price_enterprise_yearly_id"} 
-                  userId="demo-user-id" 
-                  email="client@example.com" 
-                  label="Commencer" 
+                <CheckoutButton
+                  priceId={process.env.NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_YEARLY || "price_enterprise_yearly_id"}
+                  userId="demo-user-id"
+                  email="client@example.com"
+                  label="Commencer"
                 />
               </CardFooter>
             </Card>
@@ -479,4 +479,3 @@ export default function PricingPage() {
     </div>
   )
 }
-

@@ -33,4 +33,3 @@ export default function ImageWithFallback({ src, fallbackSrc, alt, ...rest }: Im
     </>
   )
 }
-
