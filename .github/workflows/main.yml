@@ -106,18 +106,18 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Determine Environment Config
         id: config
         run: |
           # Set Tag
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then 
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "tag=latest" >> $GITHUB_OUTPUT
             echo "domain=${{ secrets.DOMAIN }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then 
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
             echo "tag=staging" >> $GITHUB_OUTPUT
             echo "domain=staging.${{ secrets.DOMAIN }}" >> $GITHUB_OUTPUT
-          else 
+          else
             echo "tag=dev" >> $GITHUB_OUTPUT
             echo "domain=dev.${{ secrets.DOMAIN }}" >> $GITHUB_OUTPUT
           fi
@@ -146,7 +146,7 @@ jobs:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/staging' && 'staging' || 'development' }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Copy production files
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -166,7 +166,7 @@ jobs:
           script: |
             cd "~/Apps/portfolio-saas/${{ github.ref_name }}"
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-            
+
             # Determine domain and ports based on branch
             if [[ "${{ github.ref_name }}" == "main" ]]; then
               ENV_DOMAIN="${{ secrets.DOMAIN }}"
@@ -199,13 +199,13 @@ jobs:
             JWT_EXPIRY=${{ secrets.JWT_EXPIRY || '3600' }}
             REALTIME_SECRET_KEY_BASE=${{ secrets.REALTIME_SECRET_KEY_BASE }}
             EOF
-            
+
             # Pull latest images
             docker compose -f docker-compose.prod.yml -p "portfolio-${{ github.ref_name }}" pull
-            
+
             # Restart services with isolated project name
             docker compose -f docker-compose.prod.yml -p "portfolio-${{ github.ref_name }}" up -d --remove-orphans
-            
+
             # Cleanup old images
             docker image prune -f
 

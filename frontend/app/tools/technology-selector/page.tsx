@@ -650,7 +650,7 @@ export default function TechnologySelectorPage() {
                                 </Badge>
                               </div>
                               <p className="text-muted-foreground mb-3">{rec.technology.description}</p>
-                              
+
                               <div className="flex items-center space-x-4 mb-3">
                                 <div className="text-sm">
                                   <span className="font-medium">Score: </span>

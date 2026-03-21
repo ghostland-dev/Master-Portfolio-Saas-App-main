@@ -58,25 +58,25 @@ show_help() {
 # Fonction de démarrage
 start_services() {
     print_status "Démarrage des services Portfolio SaaS..."
-    
+
     # Vérifier si Docker est installé
     if ! command -v docker &> /dev/null; then
         print_error "Docker n'est pas installé. Veuillez l'installer d'abord."
         exit 1
     fi
-    
+
     if ! command -v docker-compose &> /dev/null; then
         print_error "Docker Compose n'est pas installé. Veuillez l'installer d'abord."
         exit 1
     fi
-    
+
     # Démarrer les services
     docker-compose up -d
-    
+
     # Attendre que les services démarrent
     print_status "Attente du démarrage des services..."
     sleep 10
-    
+
     # Vérifier le statut
     if curl -s http://localhost:3000 > /dev/null; then
         print_success "Application démarrée avec succès !"
@@ -112,7 +112,7 @@ show_status() {
     echo ""
     docker-compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
     echo ""
-    
+
     # Test de connectivité
     if curl -s http://localhost:3000 > /dev/null; then
         print_success "Application accessible sur http://localhost:3000"
@@ -130,11 +130,11 @@ show_logs() {
 # Fonction de tests
 run_tests() {
     print_status "Exécution des tests..."
-    
+
     # Tests unitaires
     print_status "Tests unitaires..."
     npm test -- --passWithNoTests --watchAll=false || print_warning "Certains tests ont échoué"
-    
+
     echo ""
     print_success "Tests terminés."
 }
@@ -142,7 +142,7 @@ run_tests() {
 # Fonction de nettoyage
 clean_services() {
     print_status "Nettoyage des conteneurs et volumes..."
-    
+
     read -p "Êtes-vous sûr de vouloir supprimer tous les conteneurs et volumes ? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then

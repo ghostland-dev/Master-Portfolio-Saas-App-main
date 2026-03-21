@@ -45,11 +45,11 @@ export default function NewProjectPage() {
     try {
       // Simuler la création du projet
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
       toast("success", "Le projet a été créé avec succès.", {
         title: "Projet créé"
       })
-      
+
       // Réinitialiser le formulaire
       setProject({
         title: "",
@@ -357,4 +357,3 @@ export default function NewProjectPage() {
     </div>
   )
 }
-

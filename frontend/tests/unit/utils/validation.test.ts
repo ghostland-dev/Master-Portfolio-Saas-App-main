@@ -6,23 +6,23 @@ const validateEmail = (email: string): boolean => {
 
 const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = []
-  
+
   if (password.length < 8) {
     errors.push('Le mot de passe doit contenir au moins 8 caractères')
   }
-  
+
   if (!/[A-Z]/.test(password)) {
     errors.push('Le mot de passe doit contenir au moins une majuscule')
   }
-  
+
   if (!/[a-z]/.test(password)) {
     errors.push('Le mot de passe doit contenir au moins une minuscule')
   }
-  
+
   if (!/\d/.test(password)) {
     errors.push('Le mot de passe doit contenir au moins un chiffre')
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors
@@ -31,19 +31,19 @@ const validatePassword = (password: string): { isValid: boolean; errors: string[
 
 const validateProjectData = (project: any): { isValid: boolean; errors: string[] } => {
   const errors: string[] = []
-  
+
   if (!project.title || project.title.trim().length === 0) {
     errors.push('Le titre du projet est requis')
   }
-  
+
   if (!project.client_id || project.client_id.trim().length === 0) {
     errors.push('Le client est requis')
   }
-  
+
   if (project.budget && (isNaN(project.budget) || project.budget < 0)) {
     errors.push('Le budget doit être un nombre positif')
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors
@@ -109,7 +109,7 @@ describe('Validation Utils', () => {
         budget: 5000,
         description: 'A test project'
       }
-      
+
       const result = validateProjectData(project)
       expect(result.isValid).toBe(true)
       expect(result.errors).toHaveLength(0)
@@ -120,7 +120,7 @@ describe('Validation Utils', () => {
         client_id: 'client-123',
         budget: 5000
       }
-      
+
       const result = validateProjectData(project)
       expect(result.isValid).toBe(false)
       expect(result.errors).toContain('Le titre du projet est requis')
@@ -131,7 +131,7 @@ describe('Validation Utils', () => {
         title: 'Test Project',
         budget: 5000
       }
-      
+
       const result = validateProjectData(project)
       expect(result.isValid).toBe(false)
       expect(result.errors).toContain('Le client est requis')
@@ -143,7 +143,7 @@ describe('Validation Utils', () => {
         client_id: 'client-123',
         budget: -1000
       }
-      
+
       const result = validateProjectData(project)
       expect(result.isValid).toBe(false)
       expect(result.errors).toContain('Le budget doit être un nombre positif')
@@ -154,7 +154,7 @@ describe('Validation Utils', () => {
         title: 'Test Project',
         client_id: 'client-123'
       }
-      
+
       const result = validateProjectData(project)
       expect(result.isValid).toBe(true)
       expect(result.errors).toHaveLength(0)

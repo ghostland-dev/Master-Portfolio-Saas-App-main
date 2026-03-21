@@ -52,11 +52,11 @@ export default function ComposeMessagePage() {
     try {
       // Simuler l'envoi du message
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
       toast("success", "Votre message a été envoyé avec succès.", {
         title: "Message envoyé",
       })
-      
+
       // Réinitialiser le formulaire
       setMessage({
         recipient: "",
@@ -266,4 +266,3 @@ export default function ComposeMessagePage() {
     </div>
   )
 }
-

@@ -20,13 +20,13 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       console.log("Tentative de connexion avec:", email)
-      
+
       // Utiliser l'authentification Supabase réelle
       const { error: authError } = await signIn(email, password)
-      
+
       if (authError) {
         console.error("Erreur d'authentification:", authError)
         error("Erreur de connexion", {
@@ -39,11 +39,11 @@ export function LoginForm() {
           description: "Bienvenue dans votre espace personnel !",
           duration: 3000,
         })
-        
+
         // Redirection vers le dashboard
         router.push('/dashboard')
       }
-      
+
     } catch (err) {
       console.error("Erreur inattendue:", err)
       error("Erreur de connexion", {

@@ -83,7 +83,7 @@ describe('Navbar', () => {
     render(<Navbar />)
     const menuButton = screen.getByRole('button', { name: /menu/i })
     fireEvent.click(menuButton)
-    
+
     // Check if mobile menu is visible - simplified check
     expect(menuButton).toBeInTheDocument()
   })
@@ -92,7 +92,7 @@ describe('Navbar', () => {
     render(<Navbar />)
     const servicesLink = screen.getByText('Services')
     fireEvent.click(servicesLink)
-    
+
     // Since we're using href instead of onClick, this test might not work as expected
     // Let's just verify the link exists
     expect(servicesLink).toBeInTheDocument()

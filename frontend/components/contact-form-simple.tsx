@@ -25,16 +25,16 @@ export function ContactFormSimple() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       // Simulation d'un appel API
       await new Promise(resolve => setTimeout(resolve, 2000))
-      
+
       success("Message envoyé avec succès!", {
         description: "Nous vous répondrons dans les plus brefs délais.",
         duration: 5000,
       })
-      
+
       setFormData({
         name: "",
         email: "",

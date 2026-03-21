@@ -15,7 +15,7 @@ describe('Simple Integration Test', () => {
     const greeting = 'Hello'
     const name = 'World'
     const message = `${greeting} ${name}!`
-    
+
     expect(message).toBe('Hello World!')
     expect(message.length).toBe(12)
   })
@@ -24,7 +24,7 @@ describe('Simple Integration Test', () => {
     const numbers = [1, 2, 3, 4, 5]
     const doubled = numbers.map(n => n * 2)
     const sum = numbers.reduce((acc, n) => acc + n, 0)
-    
+
     expect(doubled).toEqual([2, 4, 6, 8, 10])
     expect(sum).toBe(15)
   })

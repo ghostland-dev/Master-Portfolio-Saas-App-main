@@ -12,7 +12,7 @@ const Tabs = React.forwardRef<
 >(({ className, stableId, ...props }, ref) => {
   // Utiliser un ID stable pour éviter les erreurs d'hydratation
   const id = React.useMemo(() => stableId || `tabs-${Math.random().toString(36).substr(2, 9)}`, [stableId])
-  
+
   return (
     <TabsPrimitive.Root
       ref={ref}

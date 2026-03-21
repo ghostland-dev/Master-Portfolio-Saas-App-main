@@ -251,4 +251,3 @@ export const generateStructuredPDF = (
     return false
   }
 }
-

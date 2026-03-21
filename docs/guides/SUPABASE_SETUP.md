@@ -125,7 +125,7 @@ function MyComponent() {
   const { projects, loading, createProject } = useProjects()
   const { messages, sendMessage } = useMessages()
   const { invoices, createInvoice } = useInvoices()
-  
+
   // Utilisation...
 }
 ```
@@ -148,7 +148,7 @@ const { data, error } = await supabaseClient
 // Écouter les changements en temps réel
 const subscription = supabaseClient
   .channel('projects')
-  .on('postgres_changes', 
+  .on('postgres_changes',
     { event: '*', schema: 'public', table: 'projects' },
     (payload) => console.log('Changement:', payload)
   )
@@ -174,12 +174,12 @@ import { useSupabase } from '@/components/supabase-provider'
 
 function LoginForm() {
   const { signIn, signUp, signOut, user } = useSupabase()
-  
+
   const handleLogin = async (email, password) => {
     const { error } = await signIn(email, password)
     if (error) console.error(error)
   }
-  
+
   // ...
 }
 ```
@@ -234,7 +234,7 @@ docker-compose up -d
    ```bash
    # Vérifier les logs
    docker-compose logs
-   
+
    # Redémarrer
    docker-compose restart
    ```

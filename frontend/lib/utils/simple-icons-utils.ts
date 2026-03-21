@@ -309,4 +309,3 @@ export function getTechnologyIconUrl(technology: string): string | undefined {
   if (!slug) return undefined
   return getSimpleIconUrl(slug)
 }
-

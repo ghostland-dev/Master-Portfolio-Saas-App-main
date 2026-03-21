@@ -959,7 +959,7 @@ export default function ProjectPlannerPage() {
             <Icon name="Layout" className="mr-2 h-4 w-4" />
             Templates
           </Button>
-          
+
           <DateRangePicker
             date={{
               from: project.startDate,
@@ -1574,4 +1574,3 @@ export default function ProjectPlannerPage() {
     </div>
   )
 }
-

@@ -22,17 +22,17 @@ export function SignupForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       console.log("Tentative d'inscription avec:", email)
-      
+
       // Utiliser l'authentification Supabase réelle
       const { error: authError } = await signUp(email, password, {
         name,
         company,
         role: 'client'
       })
-      
+
       if (authError) {
         console.error("Erreur d'inscription:", authError)
         error("Erreur d'inscription", {
@@ -45,11 +45,11 @@ export function SignupForm() {
           description: "Vérifiez votre email pour confirmer votre compte.",
           duration: 5000,
         })
-        
+
         // Redirection vers la page de connexion
         router.push('/login')
       }
-      
+
     } catch (err) {
       console.error("Erreur inattendue:", err)
       error("Erreur d'inscription", {

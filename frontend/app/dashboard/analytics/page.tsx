@@ -33,7 +33,7 @@ export default function AnalyticsPage() {
   const { projects, loading: projectsLoading } = useProjects()
   const { messages, loading: messagesLoading } = useMessages()
   const { invoices, loading: invoicesLoading } = useInvoices()
-  
+
   const [timeRange, setTimeRange] = useState("6months")
   const [analyticsData, setAnalyticsData] = useState<any>({
     projects: [],
@@ -92,7 +92,7 @@ export default function AnalyticsPage() {
     }, {})
 
     return Object.entries(statusCounts).map(([status, count]) => ({
-      status: status === "proposal" ? "Proposition" : 
+      status: status === "proposal" ? "Proposition" :
               status === "active" ? "Actif" :
               status === "review" ? "En révision" :
               status === "completed" ? "Terminé" : "En attente",
@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
     }, {})
 
     return Object.entries(typeCounts).map(([type, count]) => ({
-      name: type === "web" ? "Web" : 
+      name: type === "web" ? "Web" :
             type === "mobile" ? "Mobile" :
             type === "devops" ? "DevOps" : "Data",
       value: count,
@@ -402,4 +402,3 @@ export default function AnalyticsPage() {
     </div>
   )
 }
-

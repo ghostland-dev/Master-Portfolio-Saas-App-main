@@ -1,4 +1,4 @@
- 
+
 
 # Ismail MOUYAHADA - Solutions Numériques Sur Mesure
 
@@ -91,13 +91,13 @@ Here are some examples of the projects I have worked on:
 
 ## Testimonials
 
-> *"Ismail transformed our idea into a fully functioning web application in record time. His expertise in full-stack development is unparalleled."*  
+> *"Ismail transformed our idea into a fully functioning web application in record time. His expertise in full-stack development is unparalleled."*
 > — **Sophie Martin**, CEO of Textariat
 
-> *"Ismail set up our DevOps pipeline, making our deployment process seamless and efficient. We saw a significant improvement in delivery times."*  
+> *"Ismail set up our DevOps pipeline, making our deployment process seamless and efficient. We saw a significant improvement in delivery times."*
 > — **Thomas Dubois**, CTO of MimicCorp
 
-> *"Working with Ismail was a fantastic experience. His technical knowledge and communication skills ensured the project met all our objectives."*  
+> *"Working with Ismail was a fantastic experience. His technical knowledge and communication skills ensured the project met all our objectives."*
 > — **Marie Leroy**, Product Manager at E-Shop Plus
 
 ## Contributing
@@ -117,5 +117,3 @@ For collaboration inquiries, feel free to reach out through the contact form on 
 ```
 © 2025 Ismail MOUYAHADA. All rights reserved.
 ```
-
- 

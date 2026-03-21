@@ -65,4 +65,3 @@ export function getRandomIcon(): IconName {
   ]
   return icons[Math.floor(Math.random() * icons.length)]
 }
-

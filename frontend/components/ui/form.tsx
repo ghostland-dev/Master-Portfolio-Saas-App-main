@@ -18,7 +18,7 @@ export function Form<Values extends FormikValues>({
   return (
     <Formik<Values> {...formikProps}>
       {(formikProps) => (
-        <form 
+        <form
           onSubmit={formikProps.handleSubmit}
           className={cn("space-y-6", className)}
         >
@@ -39,21 +39,21 @@ interface FormFieldProps {
   className?: string
 }
 
-export function FormField({ 
-  name, 
-  label, 
-  error, 
-  touched, 
-  required, 
-  children, 
-  className 
+export function FormField({
+  name,
+  label,
+  error,
+  touched,
+  required,
+  children,
+  className
 }: FormFieldProps) {
   const hasError = error && touched
 
   return (
     <div className={cn("space-y-2", className)}>
       {label && (
-        <label 
+        <label
           htmlFor={name}
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >

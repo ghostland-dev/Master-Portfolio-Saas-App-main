@@ -37,4 +37,3 @@ export const openDyslexic = localFont({
   ],
   variable: "--font-open-dyslexic",
 })
-

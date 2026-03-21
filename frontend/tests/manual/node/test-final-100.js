@@ -9,25 +9,25 @@ console.log('===============================\n');
 
 async function testSupabaseAPI() {
   console.log('1. 📊 Test API Supabase...');
-  
+
   try {
     // Test lecture
     const { stdout: readResult } = await execAsync(
       'curl -s "http://localhost:8001/rest/v1/projects?select=*&limit=1" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"'
     );
-    
+
     if (readResult.includes('E-commerce Platform')) {
       console.log('✅ Lecture API Supabase: OK');
     } else {
       console.log('❌ Lecture API Supabase: ÉCHEC');
       return false;
     }
-    
+
     // Test écriture
     const { stdout: writeResult } = await execAsync(
       'curl -X POST "http://localhost:8001/rest/v1/contact_messages" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" -H "Content-Type: application/json" -d \'{"name": "Test Final 100%", "email": "final100@test.com", "message": "Test de connexion 100%", "subject": "Test 100%"}\''
     );
-    
+
     console.log('✅ Écriture API Supabase: OK');
     return true;
   } catch (error) {
@@ -38,7 +38,7 @@ async function testSupabaseAPI() {
 
 async function testMailHogComplete() {
   console.log('\n2. 📧 Test MailHog complet...');
-  
+
   try {
     // Test interface
     const { stdout: interfaceResult } = await execAsync('curl -s "http://localhost:8025" | grep -o "MailHog" | head -1');
@@ -48,11 +48,11 @@ async function testMailHogComplete() {
       console.log('❌ Interface MailHog: ÉCHEC');
       return false;
     }
-    
+
     // Test API
     const { stdout: apiResult } = await execAsync('curl -s "http://localhost:8025/api/v1/messages" | jq ".total" 2>/dev/null || echo "API accessible"');
     console.log('✅ API MailHog: OK');
-    
+
     // Test SMTP
     const { stdout: smtpResult } = await execAsync('echo "Test SMTP MailHog" | mail -s "Test SMTP 100%" -S smtp=localhost:1025 admin@example.com 2>/dev/null && echo "Email envoyé" || echo "Erreur SMTP"');
     if (smtpResult.includes('Email envoyé')) {
@@ -60,7 +60,7 @@ async function testMailHogComplete() {
     } else {
       console.log('⚠️  SMTP MailHog: Partiel (interface fonctionne)');
     }
-    
+
     return true;
   } catch (error) {
     console.log('❌ Erreur MailHog:', error.message);
@@ -70,12 +70,12 @@ async function testMailHogComplete() {
 
 async function testDatabaseDirect() {
   console.log('\n3. 🗄️ Test base de données direct...');
-  
+
   try {
     const { stdout: dbResult } = await execAsync(
       'PGPASSWORD="your-super-secret-and-long-postgres-password" psql -h localhost -p 54322 -U postgres -d postgres -c "SELECT COUNT(*) as count FROM public.projects;"'
     );
-    
+
     if (dbResult.includes('count')) {
       const count = dbResult.match(/count\s*\|\s*(\d+)/)?.[1] || '0';
       console.log(`✅ Base de données: OK (${count} projets)`);
@@ -92,7 +92,7 @@ async function testDatabaseDirect() {
 
 async function testNextJSApp() {
   console.log('\n4. 🚀 Test application Next.js...');
-  
+
   try {
     const { stdout: appResult } = await execAsync('curl -s "http://localhost:3000" | grep -o "Ismail MOUYAHADA" | head -1');
     if (appResult.includes('Ismail MOUYAHADA')) {
@@ -110,7 +110,7 @@ async function testNextJSApp() {
 
 async function testSupabaseStudio() {
   console.log('\n5. 🎨 Test Supabase Studio...');
-  
+
   try {
     const { stdout: studioResult } = await execAsync('curl -s "http://localhost:3001" | head -1');
     if (studioResult.includes('project')) {
@@ -134,7 +134,7 @@ async function runFinalTest() {
     nextjs: await testNextJSApp(),
     studio: await testSupabaseStudio()
   };
-  
+
   console.log('\n📋 RÉSULTATS FINAUX');
   console.log('===================');
   console.log(`Supabase API:  ${results.supabase ? '✅' : '❌'}`);
@@ -142,14 +142,14 @@ async function runFinalTest() {
   console.log(`Base données:  ${results.database ? '✅' : '❌'}`);
   console.log(`Next.js App:   ${results.nextjs ? '✅' : '❌'}`);
   console.log(`Supabase Studio: ${results.studio ? '✅' : '❌'}`);
-  
+
   const connectedServices = Object.values(results).filter(result => result).length;
   const totalServices = Object.keys(results).length;
-  
+
   console.log('\n🎯 CONNEXION GLOBALE');
   console.log('====================');
   console.log(`Services connectés: ${connectedServices}/${totalServices}`);
-  
+
   if (connectedServices === totalServices) {
     console.log('🎉 100% CONNECTÉ ! Tous les services fonctionnent parfaitement !');
     console.log('\n✅ Base de données: Connexion directe OK');
@@ -162,7 +162,7 @@ async function runFinalTest() {
   } else {
     console.log('⚠️  Connexion partielle. Vérifiez les services en erreur.');
   }
-  
+
   return connectedServices === totalServices;
 }
 
