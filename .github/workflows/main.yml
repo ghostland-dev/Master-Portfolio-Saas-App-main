@@ -104,7 +104,7 @@ jobs:
     name: Build & Push Docker Image
     needs: [test, security]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       packages: write
@@ -153,7 +153,7 @@ jobs:
     name: Deploy
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/staging' && 'staging' || 'development' }}
     steps:
@@ -164,8 +164,9 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.prod.yml,deploy/kong.yml,backend/supabase/*.sql"
+          source: "docker-compose.prod.yml,deploy/kong.yml"
           target: "~/Apps/portfolio-saas/${{ github.ref_name }}"
           strip_components: 0
 
@@ -174,54 +175,50 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd "~/Apps/portfolio-saas/${{ github.ref_name }}"
+            set -euo pipefail
+            cd ~/Apps/portfolio-saas/${{ github.ref_name }}
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-            # Determine domain and ports based on branch
             if [[ "${{ github.ref_name }}" == "main" ]]; then
               ENV_DOMAIN="${{ secrets.DOMAIN }}"
               APP_PORT=3000
-              KONG_PORT=8000
+              KONG_PORT=8001
               KONG_SSL_PORT=8443
             elif [[ "${{ github.ref_name }}" == "staging" ]]; then
               ENV_DOMAIN="staging.${{ secrets.DOMAIN }}"
               APP_PORT=3010
-              KONG_PORT=8010
+              KONG_PORT=8011
               KONG_SSL_PORT=8444
             else
               ENV_DOMAIN="dev.${{ secrets.DOMAIN }}"
               APP_PORT=3020
-              KONG_PORT=8020
+              KONG_PORT=8021
               KONG_SSL_PORT=8445
             fi
 
-            cat > .env << EOF
-            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
-            DOMAIN=$ENV_DOMAIN
-            APP_PORT=$APP_PORT
-            KONG_PORT=$KONG_PORT
-            KONG_SSL_PORT=$KONG_SSL_PORT
-            ANON_KEY=${{ secrets.ANON_KEY }}
-            SERVICE_ROLE_KEY=${{ secrets.SERVICE_ROLE_KEY }}
-            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            POSTGRES_DB=${{ secrets.POSTGRES_DB || 'postgres' }}_${{ github.ref_name }}
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
-            JWT_EXPIRY=${{ secrets.JWT_EXPIRY || '3600' }}
-            REALTIME_SECRET_KEY_BASE=${{ secrets.REALTIME_SECRET_KEY_BASE }}
-            EOF
+            {
+              echo "GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}"
+              echo "DOMAIN=${ENV_DOMAIN}"
+              echo "APP_PORT=${APP_PORT}"
+              echo "KONG_PORT=${KONG_PORT}"
+              echo "KONG_SSL_PORT=${KONG_SSL_PORT}"
+              echo "ANON_KEY=${{ secrets.ANON_KEY }}"
+              echo "SERVICE_ROLE_KEY=${{ secrets.SERVICE_ROLE_KEY }}"
+              echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
+              echo "POSTGRES_DB=${{ secrets.POSTGRES_DB || 'postgres' }}_${{ github.ref_name }}"
+              echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"
+              echo "JWT_EXPIRY=${{ secrets.JWT_EXPIRY || '3600' }}"
+              echo "REALTIME_SECRET_KEY_BASE=${{ secrets.REALTIME_SECRET_KEY_BASE }}"
+            } > .env
 
-            # Pull latest images
             docker compose -f docker-compose.prod.yml -p "portfolio-${{ github.ref_name }}" pull
-
-            # Restart services with isolated project name
             docker compose -f docker-compose.prod.yml -p "portfolio-${{ github.ref_name }}" up -d --remove-orphans
-
-            # Cleanup old images
             docker image prune -f
 
-            echo "Deployment to $ENV_DOMAIN successful!"
+            echo "Deployment to ${ENV_DOMAIN} successful (app :${APP_PORT}, kong :${KONG_PORT})"
 
   # 6. NOTIFY
   notify:

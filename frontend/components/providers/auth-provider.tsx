@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const handleAuthRedirects = async () => {
       // Pages qui nécessitent une authentification
-      const isProtectedRoute = pathname?.startsWith("/dashboard")
+      const isProtectedRoute = pathname?.startsWith("/dashboard") || pathname?.startsWith("/tools")
       const isLoginPage = pathname === "/login"
 
       // Éviter les redirections inutiles qui peuvent causer des boucles

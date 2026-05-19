@@ -1,118 +1,75 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowRight, Calendar, Clock, Search } from "lucide-react"
+import { ArrowRight, Calendar, Clock, Search, Loader2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-
-// Sample blog posts data
-const blogPosts = [
-  {
-    id: "understanding-microservices",
-    title: "Comprendre l'Architecture Microservices",
-    excerpt:
-      "Une introduction aux principes fondamentaux de l'architecture microservices et comment elle peut bénéficier à vos projets.",
-    content: "...",
-    image: "/placeholder.svg?height=400&width=600",
-    date: "2023-05-15",
-    readTime: 8,
-    author: "Ismail MOUYAHADA",
-    categories: ["Architecture", "DevOps"],
-    tags: ["microservices", "architecture", "cloud"],
-  },
-  {
-    id: "react-performance-optimization",
-    title: "Optimisation des Performances React",
-    excerpt:
-      "Techniques avancées pour améliorer les performances de vos applications React et offrir une meilleure expérience utilisateur.",
-    content: "...",
-    image: "/placeholder.svg?height=400&width=600",
-    date: "2023-04-22",
-    readTime: 12,
-    author: "Ismail MOUYAHADA",
-    categories: ["Frontend", "Performance"],
-    tags: ["react", "javascript", "performance", "optimization"],
-  },
-  {
-    id: "postgresql-vs-mongodb",
-    title: "PostgreSQL vs MongoDB : Choisir la Bonne Base de Données",
-    excerpt:
-      "Analyse comparative entre PostgreSQL et MongoDB pour vous aider à choisir la solution la plus adaptée à votre projet.",
-    content: "...",
-    image: "/placeholder.svg?height=400&width=600",
-    date: "2023-03-10",
-    readTime: 10,
-    author: "Ismail MOUYAHADA",
-    categories: ["Bases de données"],
-    tags: ["postgresql", "mongodb", "sql", "nosql", "database"],
-  },
-  {
-    id: "ci-cd-best-practices",
-    title: "Meilleures Pratiques CI/CD pour les Équipes DevOps",
-    excerpt:
-      "Guide complet des meilleures pratiques d'intégration et de déploiement continus pour améliorer votre workflow DevOps.",
-    content: "...",
-    image: "/placeholder.svg?height=400&width=600",
-    date: "2023-02-18",
-    readTime: 15,
-    author: "Ismail MOUYAHADA",
-    categories: ["DevOps", "CI/CD"],
-    tags: ["devops", "ci/cd", "automation", "github-actions", "jenkins"],
-  },
-  {
-    id: "nextjs-vs-nuxtjs",
-    title: "Next.js vs Nuxt.js : Quel Framework Choisir en 2023",
-    excerpt:
-      "Comparaison détaillée entre Next.js et Nuxt.js pour vous aider à choisir le framework le plus adapté à votre prochain projet.",
-    content: "...",
-    image: "/placeholder.svg?height=400&width=600",
-    date: "2023-01-25",
-    readTime: 9,
-    author: "Ismail MOUYAHADA",
-    categories: ["Frontend", "Frameworks"],
-    tags: ["nextjs", "nuxtjs", "react", "vue", "javascript"],
-  },
-  {
-    id: "docker-kubernetes-introduction",
-    title: "Introduction à Docker et Kubernetes",
-    excerpt: "Guide du débutant pour comprendre et utiliser Docker et Kubernetes dans vos projets de développement.",
-    content: "...",
-    image: "/placeholder.svg?height=400&width=600",
-    date: "2022-12-05",
-    readTime: 14,
-    author: "Ismail MOUYAHADA",
-    categories: ["DevOps", "Containerisation"],
-    tags: ["docker", "kubernetes", "containers", "devops", "cloud"],
-  },
-]
-
-// Get all unique categories and tags
-const allCategories = [...new Set(blogPosts.flatMap((post) => post.categories))]
-const allTags = [...new Set(blogPosts.flatMap((post) => post.tags))]
+import { supabase as supabaseClient } from "@/lib/supabase"
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedTag, setSelectedTag] = useState("")
+  const [posts, setPosts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const { data, error } = await supabaseClient
+          .from("blog_posts")
+          .select("*")
+          .eq("published", true)
+          .order("published_at", { ascending: false })
+
+        if (error) {
+          console.error("Error fetching blog posts:", error)
+        } else {
+          setPosts(data || [])
+        }
+      } catch (err) {
+        console.error("Unexpected error fetching posts:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchPosts()
+  }, [])
+
+  // Get all unique categories and tags from fetched posts
+  const allCategories = Array.from(new Set(posts.flatMap((post) => post.categories || [])))
+  const allTags = Array.from(new Set(posts.flatMap((post) => post.tags || [])))
 
   // Filter posts based on search, category, and tag
-  const filteredPosts = blogPosts.filter((post) => {
+  const filteredPosts = posts.filter((post) => {
+    const title = post.title || ""
+    const excerpt = post.excerpt || ""
+
     const matchesSearch =
       searchQuery === "" ||
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+      title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      excerpt.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesCategory = selectedCategory === "all" || post.categories.includes(selectedCategory)
+    const matchesCategory = selectedCategory === "all" || (post.categories || []).includes(selectedCategory)
 
-    const matchesTag = selectedTag === "" || post.tags.includes(selectedTag)
+    const matchesTag = selectedTag === "" || (post.tags || []).includes(selectedTag)
 
     return matchesSearch && matchesCategory && matchesTag
   })
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -139,7 +96,7 @@ export default function BlogPage() {
 
           <div className="mb-8">
             <Tabs defaultValue="all" onValueChange={setSelectedCategory}>
-              <TabsList className="mb-4">
+              <TabsList className="flex flex-wrap h-auto p-1 bg-muted/50">
                 <TabsTrigger value="all">Tous</TabsTrigger>
                 {allCategories.map((category) => (
                   <TabsTrigger key={category} value={category}>
@@ -153,29 +110,34 @@ export default function BlogPage() {
           {filteredPosts.length > 0 ? (
             <div className="space-y-8">
               {filteredPosts.map((post) => (
-                <Card key={post.id} className="overflow-hidden">
+                <Card key={post.id} className="overflow-hidden border-muted/20 hover:border-primary/50 transition-colors">
                   <div className="md:flex">
                     <div className="relative h-60 md:h-auto md:w-1/3">
-                      <Image src={post.image || "/placeholder.svg"} alt={post.title} fill className="object-cover" />
+                      <Image
+                        src={post.image_url || "/placeholder.svg"}
+                        alt={post.title}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                     <div className="p-6 md:w-2/3">
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {post.categories.map((category) => (
+                        {(post.categories || []).map((category: string) => (
                           <Badge key={category} variant="secondary" className="capitalize">
                             {category}
                           </Badge>
                         ))}
                       </div>
                       <h2 className="text-2xl font-bold mb-2">
-                        <Link href={`/blog/${post.id}`} className="hover:text-primary transition-colors">
+                        <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
                           {post.title}
                         </Link>
                       </h2>
-                      <p className="text-muted-foreground mb-4">{post.excerpt}</p>
+                      <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
                       <div className="flex items-center text-sm text-muted-foreground mb-4">
                         <span className="flex items-center">
                           <Calendar className="mr-1 h-4 w-4" />
-                          {new Date(post.date).toLocaleDateString("fr-FR", {
+                          {new Date(post.published_at).toLocaleDateString("fr-FR", {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
@@ -184,11 +146,11 @@ export default function BlogPage() {
                         <span className="mx-2">•</span>
                         <span className="flex items-center">
                           <Clock className="mr-1 h-4 w-4" />
-                          {post.readTime} min de lecture
+                          {post.read_time_minutes} min de lecture
                         </span>
                       </div>
                       <Button variant="outline" asChild>
-                        <Link href={`/blog/${post.id}`}>
+                        <Link href={`/blog/${post.slug}`}>
                           Lire l'article <ArrowRight className="ml-2 h-4 w-4" />
                         </Link>
                       </Button>
@@ -208,7 +170,7 @@ export default function BlogPage() {
         </div>
 
         <div className="md:w-1/4 space-y-8">
-          <Card>
+          <Card className="border-muted/20">
             <CardContent className="p-6">
               <h3 className="font-semibold text-lg mb-4">Tags populaires</h3>
               <div className="flex flex-wrap gap-2">
@@ -216,7 +178,7 @@ export default function BlogPage() {
                   <Badge
                     key={tag}
                     variant={selectedTag === tag ? "default" : "outline"}
-                    className="cursor-pointer capitalize"
+                    className="cursor-pointer capitalize hover:bg-primary hover:text-primary-foreground transition-colors"
                     onClick={() => setSelectedTag(selectedTag === tag ? "" : tag)}
                   >
                     {tag}
@@ -226,23 +188,28 @@ export default function BlogPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-muted/20">
             <CardContent className="p-6">
               <h3 className="font-semibold text-lg mb-4">Articles récents</h3>
               <div className="space-y-4">
-                {blogPosts.slice(0, 3).map((post) => (
+                {posts.slice(0, 3).map((post) => (
                   <div key={post.id} className="flex gap-3">
-                    <div className="relative h-16 w-16 flex-shrink-0 rounded-md overflow-hidden">
-                      <Image src={post.image || "/placeholder.svg"} alt={post.title} fill className="object-cover" />
+                    <div className="relative h-16 w-16 flex-shrink-0 rounded-md overflow-hidden bg-muted">
+                      <Image
+                        src={post.image_url || "/placeholder.svg"}
+                        alt={post.title}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                     <div>
-                      <h4 className="font-medium line-clamp-2">
-                        <Link href={`/blog/${post.id}`} className="hover:text-primary transition-colors">
+                      <h4 className="font-medium line-clamp-2 text-sm leading-tight">
+                        <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
                           {post.title}
                         </Link>
                       </h4>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(post.date).toLocaleDateString("fr-FR", {
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(post.published_at).toLocaleDateString("fr-FR", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -253,20 +220,20 @@ export default function BlogPage() {
                 ))}
               </div>
             </CardContent>
-            <CardFooter className="px-6 py-4 border-t">
+            <CardFooter className="px-6 py-4 border-t border-muted/20">
               <Button variant="ghost" size="sm" className="w-full" asChild>
                 <Link href="/blog">Voir tous les articles</Link>
               </Button>
             </CardFooter>
           </Card>
 
-          <Card>
+          <Card className="border-muted/20 bg-primary/5">
             <CardContent className="p-6">
               <h3 className="font-semibold text-lg mb-4">Newsletter</h3>
               <p className="text-muted-foreground text-sm mb-4">
                 Abonnez-vous pour recevoir mes derniers articles et actualités directement dans votre boîte mail.
               </p>
-              <Input placeholder="Votre adresse email" type="email" className="mb-4" />
+              <Input placeholder="Votre adresse email" type="email" className="mb-4 bg-background" />
               <Button className="w-full">S'abonner</Button>
             </CardContent>
           </Card>

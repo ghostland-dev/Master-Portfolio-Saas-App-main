@@ -114,7 +114,7 @@ services:
   # Realtime
   realtime:
     container_name: supabase-realtime-prod
-    image: supabase/realtime:v2.30.15
+    image: supabase/realtime:v2.33.72
     depends_on:
       db:
         condition: service_healthy

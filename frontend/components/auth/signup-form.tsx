@@ -24,6 +24,15 @@ export function SignupForm() {
     setIsSubmitting(true)
 
     try {
+      const altchaPayload = (document.querySelector('input[name="altcha"]') as HTMLInputElement)?.value
+      if (!altchaPayload) {
+        error("Vérification requise", {
+          description: "Veuillez compléter le captcha pour continuer.",
+        })
+        setIsSubmitting(false)
+        return
+      }
+
       console.log("Tentative d'inscription avec:", email)
 
       // Utiliser l'authentification Supabase réelle
@@ -144,6 +153,15 @@ export function SignupForm() {
           <p className="text-xs text-muted-foreground">
             Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.
           </p>
+        </div>
+
+        <div className="my-4">
+          <altcha-widget
+            challengeurl="/api/altcha"
+            hidefooter
+            hidelogo
+            floating
+          ></altcha-widget>
         </div>
 
         <Button

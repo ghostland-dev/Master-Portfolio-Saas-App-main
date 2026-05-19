@@ -116,15 +116,12 @@ function LoginPageContent() {
         )}
 
         <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login" className="flex items-center gap-1.5">
               <Icon name="LogIn" size="sm" aria-hidden={true} /> Connexion
             </TabsTrigger>
             <TabsTrigger value="signup" className="flex items-center gap-1.5">
               <Icon name="UserPlus" size="sm" aria-hidden={true} /> Inscription
-            </TabsTrigger>
-            <TabsTrigger value="demo" className="flex items-center gap-1.5">
-              <Icon name="Users" size="sm" aria-hidden={true} /> Comptes de démo
             </TabsTrigger>
           </TabsList>
 
@@ -136,88 +133,6 @@ function LoginPageContent() {
             <SignupForm />
           </TabsContent>
 
-          <TabsContent value="demo">
-            <Card>
-              <CardHeader>
-                <CardTitle>Comptes de démonstration</CardTitle>
-                <CardDescription>Utilisez l'un de ces comptes pour tester l'application</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-4">
-                  <div className="border rounded-lg p-4 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Icon name="UserCog" className="h-5 w-5 text-primary" aria-hidden={true} />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Compte Administrateur</h3>
-                        <p className="text-sm text-muted-foreground">Accès complet à toutes les fonctionnalités</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Email:</span>
-                        <div className="font-mono bg-muted p-1 rounded mt-1">ismail@mouyahada.fr</div>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Mot de passe:</span>
-                        <div className="font-mono bg-muted p-1 rounded mt-1">demo123</div>
-                      </div>
-                    </div>
-                    <Button
-                      className="w-full mt-3"
-                      onClick={() => {
-                        setEmail("ismail@mouyahada.fr")
-                        setPassword("demo123")
-                        setActiveTab("login")
-                      }}
-                    >
-                      <Icon name="Copy" className="mr-2 h-4 w-4" aria-hidden={true} />
-                      Utiliser ces identifiants
-                    </Button>
-                  </div>
-
-                  <div className="border rounded-lg p-4 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                        <Icon name="User" className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden={true} />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Compte Client</h3>
-                        <p className="text-sm text-muted-foreground">Accès limité aux projets du client</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Email:</span>
-                        <div className="font-mono bg-muted p-1 rounded mt-1">marie.dupont@retailtech.com</div>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Mot de passe:</span>
-                        <div className="font-mono bg-muted p-1 rounded mt-1">client123</div>
-                      </div>
-                    </div>
-                    <Button
-                      className="w-full mt-3"
-                      onClick={() => {
-                        setEmail("marie.dupont@retailtech.com")
-                        setPassword("client123")
-                        setActiveTab("login")
-                      }}
-                    >
-                      <Icon name="Copy" className="mr-2 h-4 w-4" aria-hidden={true} />
-                      Utiliser ces identifiants
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex flex-col space-y-2">
-                <div className="text-sm text-muted-foreground text-center">
-                  Pour cette démo, n'importe quel mot de passe sera accepté pour les emails listés.
-                </div>
-              </CardFooter>
-            </Card>
-          </TabsContent>
         </Tabs>
 
         <div className="mt-4 text-center text-sm text-muted-foreground">
