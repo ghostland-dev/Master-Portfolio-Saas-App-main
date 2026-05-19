@@ -53,6 +53,9 @@ export default function RootLayout({
 
         {/* Theme Color */}
         <meta name="theme-color" content="#10b981" />
+
+        {/* ALTCHA Script */}
+        <script async defer src="https://cdn.jsdelivr.net/npm/altcha/dist/altcha.min.js" type="module"></script>
       </head>
       <body className="min-h-screen">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>

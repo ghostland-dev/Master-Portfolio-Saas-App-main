@@ -31,11 +31,25 @@ export function ContactForm() {
     setIsSubmitting(true)
 
     try {
-      // Simulation d'un appel API
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Get ALTCHA payload from the widget
+      const altchaPayload = (document.querySelector('input[name="altcha"]') as HTMLInputElement)?.value
 
-      // Ici, vous pouvez ajouter votre logique d'envoi d'email
-      console.log("Données du formulaire:", values)
+      if (!altchaPayload) {
+        error("Vérification requise", {
+          description: "Veuillez compléter le captcha pour continuer.",
+        })
+        return
+      }
+
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, altcha: altchaPayload }),
+      })
+
+      if (!res.ok) {
+        throw new Error("Erreur lors de l'envoi")
+      }
 
       success("Message envoyé avec succès!", {
         description: "Nous vous répondrons dans les plus brefs délais.",
@@ -43,7 +57,8 @@ export function ContactForm() {
       })
 
       resetForm()
-    } catch {
+      // Reset ALTCHA widget if possible
+    } catch (err) {
       error("Erreur lors de l'envoi", {
         description: "Une erreur est survenue. Veuillez réessayer.",
         duration: 5000,
@@ -143,6 +158,15 @@ export function ContactForm() {
               className="transition-all duration-200 focus:ring-2 focus:ring-primary resize-none"
             />
           </FormField>
+
+          <div className="my-6">
+            <altcha-widget
+              challengeurl="/api/altcha"
+              floating
+              hidefooter
+              hidelogo
+            ></altcha-widget>
+          </div>
 
           <FormActions>
             <Button

@@ -1,13 +1,22 @@
 import { getSupabaseUrl } from "@/lib/supabase"
+import { verifyAltcha } from "@/lib/altcha"
+
+export const dynamic = "force-dynamic"
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, email, subject, message } = body as {
+    const { name, email, subject, message, altcha } = body as {
       name?: string
       email?: string
       subject?: string
       message?: string
+      altcha?: string
+    }
+
+    // Verify ALTCHA
+    if (!altcha || !(await verifyAltcha(altcha))) {
+      return Response.json({ message: "Vérification captcha échouée" }, { status: 403 })
     }
 
     if (!name?.trim() || !email?.trim() || !message?.trim()) {

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { getSiteHomeSkills, getSiteTechStack } from "@/lib/content/site-content"
 
 export async function GET() {
