@@ -219,8 +219,18 @@ jobs:
               echo "REALTIME_SECRET_KEY_BASE=${{ secrets.REALTIME_SECRET_KEY_BASE }}"
             } > .env
 
-            docker compose -f docker-compose.prod.yml -p "portfolio-${{ github.ref_name }}" pull
-            docker compose -f docker-compose.prod.yml -p "portfolio-${{ github.ref_name }}" up -d --remove-orphans
+            COMPOSE="docker compose -f docker-compose.prod.yml -p portfolio-${{ github.ref_name }}"
+
+            # Arrêt propre + suppression des conteneurs nommés orphelins (évite les conflits après crash)
+            $COMPOSE down --remove-orphans 2>/dev/null || true
+            for name in portfolio-app-prod supabase-db-prod supabase-auth-prod supabase-rest-prod \
+              supabase-kong-prod supabase-realtime-prod supabase-storage-prod supabase-imgproxy-prod \
+              supabase-meta-prod supabase-studio-prod; do
+              docker rm -f "$name" 2>/dev/null || true
+            done
+
+            $COMPOSE pull
+            $COMPOSE up -d --remove-orphans
             docker image prune -f
 
             echo "Deployment to ${ENV_DOMAIN} successful (app :${APP_PORT}, kong :${KONG_PORT})"
