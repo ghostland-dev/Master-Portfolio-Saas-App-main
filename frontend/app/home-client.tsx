@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/icon"
 import { CustomImage } from "@/components/ui/image"
 import { ModeToggle } from "@/components/layout/mode-toggle"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs-stable"
-import { HeroWaveCanvas } from "@/components/hero-wave-canvas"
+import { ProfilePortrait } from "@/components/profile-portrait"
 
 export type HomeClientProps = {
   homeServices: { icon: string; title: string; description: string; color: string }[]
@@ -22,55 +22,53 @@ export default function HomeClient({ homeServices, homeProjects, homeSkills }: H
   const skills = homeSkills
   return (
     <div className="relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 right-0 -z-10 h-[600px] w-[600px] opacity-20 dark:opacity-10">
-        <div className="absolute top-0 right-0 h-full w-full rounded-full bg-gradient-to-bl from-primary/30 to-transparent blur-3xl"></div>
-      </div>
-      <div className="absolute bottom-0 left-0 -z-10 h-[600px] w-[600px] opacity-20 dark:opacity-10">
-        <div className="absolute bottom-0 left-0 h-full w-full rounded-full bg-gradient-to-tr from-primary/30 to-transparent blur-3xl"></div>
-      </div>
-
       {/* Hero Section */}
-      <section className="relative pt-16 md:pt-24 lg:pt-32 pb-16 overflow-hidden">
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
-            <div className="flex-1 space-y-6 text-center lg:text-left">
+      <section className="relative overflow-hidden border-b border-border/50">
+        <div className="absolute inset-0 hero-mesh -z-10" aria-hidden />
+        <div className="absolute inset-0 hero-grid opacity-40 -z-10" aria-hidden />
+        <div className="container px-4 md:px-6 relative pt-16 md:pt-24 lg:pt-28 pb-20 md:pb-28">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
+            <div className="flex-1 space-y-7 text-center lg:text-left order-2 lg:order-1">
               <div className="inline-flex">
-                <Badge className="px-3 py-1.5 text-sm bg-primary/10 border-primary/20 text-primary font-medium">
+                <Badge className="px-3 py-1.5 text-sm badge-gradient font-medium shadow-sm">
                   Développeur Full-Stack & DevOps
                 </Badge>
               </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold tracking-tight leading-[1.1]">
                 Ismail MOUYAHADA
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70 mt-2">
+                <span className="block text-gradient-brand mt-3 text-3xl md:text-4xl lg:text-[2.75rem] font-semibold">
                   Solutions numériques sur mesure
                 </span>
               </h1>
 
-              <p className="text-lg md:text-xl text-muted-foreground max-w-[600px] mx-auto lg:mx-0">
-                Transformez vos idées en solutions robustes et évolutives. Expertise en développement full-stack et
-                pratiques DevOps pour des applications performantes.
+              <p className="text-lg md:text-xl text-muted-foreground max-w-[580px] mx-auto lg:mx-0 leading-relaxed">
+                Je conçois des applications web performantes et des infrastructures cloud fiables — du code au
+                déploiement, avec une approche pragmatique et orientée résultats.
               </p>
 
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                {["React", "Node.js", "AWS", "Docker", "Kubernetes", "CI/CD"].map((tech) => (
-                  <Badge key={tech} variant="outline" className="px-3 py-1 text-sm">
+              <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                {["React", "Next.js", "Node.js", "AWS", "Docker", "Kubernetes"].map((tech) => (
+                  <Badge
+                    key={tech}
+                    variant="outline"
+                    className="px-3 py-1 text-sm border-primary/25 bg-primary/5 hover:bg-primary/10 transition-colors"
+                  >
                     {tech}
                   </Badge>
                 ))}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button asChild size="lg" className="relative overflow-hidden group">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-1">
+                <Button asChild size="lg" className="relative overflow-hidden group shadow-lg shadow-primary/20">
                   <Link href="/appointment">
-                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0 group-hover:animate-shimmer"></span>
+                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 group-hover:animate-shimmer" />
                     <Icon name="Calendar" size="sm" className="mr-2" aria-hidden={true} /> Prendre rendez-vous
                   </Link>
                 </Button>
-                <Button variant="outline" asChild size="lg" className="group">
-                  <Link href="/portfolio">
-                    Voir mes projets{" "}
+                <Button variant="outline" asChild size="lg" className="group border-primary/30">
+                  <Link href="/about">
+                    Qui suis-je ?
                     <Icon
                       name="ArrowRight"
                       size="sm"
@@ -81,19 +79,68 @@ export default function HomeClient({ homeServices, homeProjects, homeSkills }: H
                 </Button>
               </div>
 
-              <div className="flex items-center gap-2 justify-center lg:justify-start">
+              <div className="flex items-center gap-2 justify-center lg:justify-start pt-2">
                 <ModeToggle variant="switch" />
-                <span className="text-sm text-muted-foreground">Préférez-vous le mode sombre ?</span>
+                <span className="text-sm text-muted-foreground">Mode sombre disponible</span>
               </div>
             </div>
 
-            <div className="flex-1 flex justify-center lg:justify-end">
-              <div
-                className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full overflow-hidden border-4 border-primary/30 shadow-2xl bg-muted/20 dark:bg-muted/10"
-                aria-hidden
-              >
-                <HeroWaveCanvas />
-              </div>
+            <div className="flex-1 flex justify-center lg:justify-end order-1 lg:order-2 w-full max-w-md lg:max-w-none">
+              <ProfilePortrait variant="hero" priority />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Qui suis-je — aperçu */}
+      <section className="py-16 md:py-24">
+        <div className="container px-4 md:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <ProfilePortrait variant="about" className="lg:max-w-md" />
+            <div className="space-y-6">
+              <Badge variant="outline" className="px-3 py-1 text-sm border-primary/30 text-primary">
+                Qui suis-je
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+                Un profil technique, <span className="text-gradient-brand">orienté produit</span>
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Passionné par le développement et l&apos;ingénierie DevOps, j&apos;accompagne startups et entreprises
+                dans la conception d&apos;applications robustes, scalables et maintenables — avec une communication
+                claire à chaque étape du projet.
+              </p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  { icon: "Code2", label: "Full-Stack", desc: "React, Next.js, Node.js" },
+                  { icon: "Cloud", label: "Cloud & DevOps", desc: "AWS, Docker, CI/CD" },
+                  { icon: "Shield", label: "Qualité", desc: "Code testé & maintenable" },
+                  { icon: "Users", label: "Collaboration", desc: "Écoute & transparence" },
+                ].map((item) => (
+                  <li
+                    key={item.label}
+                    className="flex gap-3 rounded-xl border border-border/60 bg-card/50 p-4 card-elevated"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                      <Icon name={item.icon as any} className="h-5 w-5 text-primary" aria-hidden={true} />
+                    </div>
+                    <div>
+                      <p className="font-semibold">{item.label}</p>
+                      <p className="text-sm text-muted-foreground">{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <Button asChild size="lg" className="group">
+                <Link href="/about">
+                  En savoir plus sur mon parcours
+                  <Icon
+                    name="ArrowRight"
+                    size="sm"
+                    className="ml-2 transition-transform duration-300 group-hover:translate-x-1"
+                    aria-hidden={true}
+                  />
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -114,7 +161,7 @@ export default function HomeClient({ homeServices, homeProjects, homeSkills }: H
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {services.map((service) => (
-              <Card key={service.title} className="h-full border border-border/50 hover:border-primary/50 transition-all duration-300 overflow-hidden group">
+              <Card key={service.title} className="h-full card-elevated overflow-hidden group">
                 <CardContent className="p-6 flex flex-col h-full">
                   <div
                     className={`p-3 rounded-xl mb-4 ${service.color} group-hover:scale-105 transition-transform duration-300`}

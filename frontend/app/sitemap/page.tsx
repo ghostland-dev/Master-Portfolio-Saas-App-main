@@ -12,7 +12,7 @@ const siteMap = [
     category: "Pages principales",
     links: [
       { name: "Accueil", path: "/", icon: "Home" },
-      { name: "À propos", path: "/about", icon: "User" },
+      { name: "Qui suis-je", path: "/about", icon: "User" },
       { name: "Services", path: "/services", icon: "Briefcase" },
       { name: "Portfolio", path: "/portfolio", icon: "FolderKanban" },
       { name: "Compétences", path: "/skills", icon: "Award" },

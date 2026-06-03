@@ -6,11 +6,14 @@ import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
 import "./globals.css"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-// import { inter, poppins } from "@/lib/utils/font-utils"
+import { Plus_Jakarta_Sans } from "next/font/google"
 import { LoadingIndicator } from "@/components/loading-indicator"
 
-const interFont = Inter({ subsets: ["latin"] })
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "Ismail MOUYAHADA - DevOps & Full-Stack Developer",
@@ -52,12 +55,12 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
 
         {/* Theme Color */}
-        <meta name="theme-color" content="#10b981" />
+        <meta name="theme-color" content="#0a1628" />
 
         {/* ALTCHA Script */}
         <script async defer src="https://cdn.jsdelivr.net/npm/altcha/dist/altcha.min.js" type="module"></script>
       </head>
-      <body className="min-h-screen">
+      <body className={`${jakarta.variable} min-h-screen font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <SupabaseProvider>
             <div className="flex min-h-screen flex-col">

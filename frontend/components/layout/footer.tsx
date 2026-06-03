@@ -51,7 +51,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-primary text-sm">
-                  À propos
+                  Qui suis-je
                 </Link>
               </li>
               <li>
