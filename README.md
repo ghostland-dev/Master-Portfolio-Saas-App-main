@@ -117,3 +117,27 @@ For collaboration inquiries, feel free to reach out through the contact form on 
 ```
 © 2025 Ismail MOUYAHADA. All rights reserved.
 ```
+
+## Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fghostland-dev%2Fportfolio-saas-platform&root-directory=frontend)
+
+Click the button to deploy your own copy on Vercel in one step.
+
+The app lives in the `frontend` folder, which the button sets as the Vercel root directory.
+
+Set these environment variables in the Vercel project settings (see `.env.example`):
+
+- `ALTCHA_HMAC_KEY`
+- `NEXT_PUBLIC_STRIPE_PRICE_BASIC`
+- `NEXT_PUBLIC_STRIPE_PRICE_BASIC_YEARLY`
+- `NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE`
+- `NEXT_PUBLIC_STRIPE_PRICE_ENTERPRISE_YEARLY`
+- `NEXT_PUBLIC_STRIPE_PRICE_PRO`
+- `NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `SUPABASE_SERVER_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
